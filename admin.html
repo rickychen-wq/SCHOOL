@@ -267,8 +267,9 @@ function toast(msg){
 function startData(){
 const onErr = e => { conn.textContent = "讀取失敗"; toast("讀取失敗：" + e.code); console.error(e); };
 
-onSnapshot(query(collection(db,"students"), orderBy("total","desc")), s => {
-  students = s.docs.map(d => ({ id:d.id, ...d.data() }));
+onSnapshot(collection(db,"students"), s => {
+  students = s.docs.map(d => ({ id:d.id, ...d.data() }))
+    .sort((a,b) => String(a.name).localeCompare(String(b.name), "zh-Hant"));
   renderStudents(); renderManage(); renderBuyWho();
 }, onErr);
 onSnapshot(collection(db,"items"), s => {
