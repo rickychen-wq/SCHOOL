@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>星塵榜 · 後台</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070B1C; --card:#111838; --line:rgba(255,255,255,.11);
+  --ink:#EEF2FF; --dim:#8C97B8; --gold:#FFC53D;
+  --plus:#4ADE80; --minus:#FB7185; --violet:#A855F7;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;
+  padding-bottom:96px;min-height:100vh}
+input,select,button,textarea{font-family:inherit;font-size:16px}
+.num{font-family:"Chakra Petch",monospace;font-weight:700}
+
+/* 鎖 */
+#lock{position:fixed;inset:0;z-index:200;background:var(--bg);display:grid;place-items:center;padding:24px}
+#lock .in{width:100%;max-width:300px;text-align:center}
+#lock h2{font-size:22px;font-weight:900;letter-spacing:3px;margin-bottom:6px}
+#lock p{color:var(--dim);font-size:13px;margin-bottom:22px}
+#pin{width:100%;padding:16px;text-align:center;font-size:26px;letter-spacing:10px;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;color:var(--ink)}
+#lock button{width:100%;margin-top:14px;padding:15px;border:0;border-radius:14px;font-weight:900;
+  font-size:17px;background:linear-gradient(135deg,#FFC53D,#FF8A3D);color:#241500}
+#lockErr{color:var(--minus);font-size:14px;margin-top:12px;min-height:20px}
+
+header{position:sticky;top:0;z-index:50;background:rgba(7,11,28,.94);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;gap:10px}
+header h1{font-size:18px;font-weight:900;letter-spacing:2px}
+header .st{margin-left:auto;font-size:11px;color:var(--dim);font-family:"Chakra Petch",monospace}
+
+.page{display:none;padding:16px}
+.page.on{display:block}
+h3{font-size:14px;letter-spacing:2px;color:var(--dim);margin:20px 0 10px;font-weight:700}
+h3:first-child{margin-top:0}
+
+.row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);
+  border-radius:16px;padding:13px 14px;margin-bottom:9px}
+.row .av{font-size:30px;width:38px;text-align:center;flex:0 0 auto}
+.row .av img{width:36px;height:36px;border-radius:50%;object-fit:cover}
+.row .info{flex:1;min-width:0}
+.row .nm{font-size:17px;font-weight:900}
+.row .sub{font-size:12px;color:var(--dim);margin-top:2px}
+.row .big{font-size:26px;color:var(--gold)}
+.row.tap:active{transform:scale(.985);opacity:.85}
+
+.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:900;background:rgba(255,255,255,.07);
+  color:var(--ink);border:1px solid var(--line)}
+.btn.gold{background:linear-gradient(135deg,#FFC53D,#FF8A3D);color:#241500;border:0}
+.btn.red{background:rgba(251,113,133,.16);color:var(--minus);border-color:rgba(251,113,133,.35)}
+.btn.sm{padding:9px 12px;font-size:13px;border-radius:10px}
+.btn:disabled{opacity:.32}
+
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:11px}
+.field label{font-size:12px;color:var(--dim);letter-spacing:1px}
+.field input,.field select,.field textarea{padding:13px;background:var(--card);
+  border:1px solid var(--line);border-radius:12px;color:var(--ink);width:100%}
+textarea{min-height:120px;line-height:1.7;font-family:"Chakra Petch",monospace}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+
+.avpick{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;background:var(--card);
+  border:1px solid var(--line);border-radius:12px;padding:8px}
+.avpick span{font-size:22px;text-align:center;padding:6px 0;border-radius:8px;cursor:pointer}
+.avpick span.on{background:rgba(255,197,61,.22);outline:1px solid var(--gold)}
+
+nav{position:fixed;left:0;right:0;bottom:0;z-index:60;display:grid;grid-template-columns:repeat(3,1fr);
+  background:rgba(10,15,38,.97);backdrop-filter:blur(10px);border-top:1px solid var(--line);
+  padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
+nav div{text-align:center;padding:10px 0;border-radius:12px;font-size:13px;font-weight:900;color:var(--dim)}
+nav div.on{color:var(--gold);background:rgba(255,197,61,.12)}
+nav div i{display:block;font-size:20px;font-style:normal;margin-bottom:2px}
+
+/* 加減分面板 */
+#sheet{position:fixed;inset:0;z-index:100;display:none;align-items:flex-end;background:rgba(0,0,0,.6)}
+#sheet.on{display:flex}
+#sheet .box{width:100%;background:#0D1330;border-radius:22px 22px 0 0;border-top:1px solid var(--line);
+  padding:18px 16px calc(20px + env(safe-area-inset-bottom));max-height:88vh;overflow-y:auto;
+  animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(100%)}}
+#sheet .who{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+#sheet .who .av{font-size:38px}
+#sheet .who .av img{width:44px;height:44px;border-radius:50%;object-fit:cover}
+#sheet .who .nm{font-size:22px;font-weight:900}
+#sheet .who .sub{font-size:13px;color:var(--dim)}
+.reasons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:8px}
+.rb{padding:15px 10px;border-radius:14px;border:1px solid;font-weight:900;font-size:15px;text-align:center}
+.rb.p{background:rgba(74,222,128,.13);border-color:rgba(74,222,128,.4);color:var(--plus)}
+.rb.m{background:rgba(251,113,133,.13);border-color:rgba(251,113,133,.4);color:var(--minus)}
+.rb b{display:block;font-family:"Chakra Petch",monospace;font-size:19px;margin-top:2px}
+.rb:active{transform:scale(.96)}
+
+.buygrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.buy{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;text-align:center}
+.buy .ic{font-size:34px}
+.buy .ic img{width:46px;height:46px;border-radius:50%;object-fit:cover}
+.buy .n{font-weight:900;margin-top:4px;font-size:15px}
+.buy .p{color:var(--gold);font-family:"Chakra Petch",monospace;font-size:19px;font-weight:700}
+.buy .s{font-size:11px;color:var(--dim)}
+.buy.no{opacity:.35}
+.buy:not(.no):active{transform:scale(.96)}
+
+.log{font-size:13px;color:var(--dim);padding:9px 12px;background:var(--card);
+  border:1px solid var(--line);border-radius:10px;margin-bottom:6px;display:flex;gap:8px}
+.log b{color:var(--ink);font-weight:700}
+.log .d{margin-left:auto;font-family:"Chakra Petch",monospace}
+.log .d.p{color:var(--plus)} .log .d.m{color:var(--minus)}
+.hint{font-size:12px;color:var(--dim);line-height:1.7;margin-top:8px}
+#toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:150;
+  background:#1B2350;border:1px solid var(--line);padding:12px 20px;border-radius:30px;
+  font-weight:900;font-size:15px;opacity:0;transition:.25s;pointer-events:none}
+#toast.on{opacity:1;bottom:124px}
+</style>
+</head>
+<body>
+
+<div id="lock"><div class="in">
+  <h2>星塵榜 後台</h2>
+  <p>請輸入密碼</p>
+  <input id="pin" type="tel" inputmode="numeric" maxlength="6" placeholder="––––––">
+  <button id="pinGo">解鎖</button>
+  <div id="lockErr"></div>
+</div></div>
+
+<header>
+  <h1 id="ttl">點數</h1>
+  <div class="st" id="conn">連線中…</div>
+</header>
+
+<!-- 點數 -->
+<section class="page on" id="p-points">
+  <h3>點名字就可以加減分</h3>
+  <div id="stuList"></div>
+  <h3>最近紀錄</h3>
+  <div id="logList"></div>
+</section>
+
+<!-- 商店 -->
+<section class="page" id="p-shop">
+  <h3>幫學生兌換</h3>
+  <div class="field">
+    <label>選學生</label>
+    <select id="buyWho"><option value="">— 請選擇 —</option></select>
+  </div>
+  <div id="buyArea"><div class="hint">選一位學生後，這裡會列出他買得起的東西。</div></div>
+
+  <h3>上架新商品</h3>
+  <div class="field"><label>名稱</label><input id="itName" placeholder="乖乖 / 閃電貓頭像"></div>
+  <div class="two">
+    <div class="field"><label>圖示（emoji 或圖片網址）</label><input id="itEmoji" placeholder="🍪"></div>
+    <div class="field"><label>價格（點）</label><input id="itPrice" type="number" value="10"></div>
+  </div>
+  <div class="two">
+    <div class="field"><label>種類</label>
+      <select id="itType"><option value="goods">實體物品</option><option value="avatar">頭像</option></select>
+    </div>
+    <div class="field"><label>庫存（頭像不用填）</label><input id="itStock" type="number" value="5"></div>
+  </div>
+  <button class="btn gold" id="itAdd" style="width:100%">上架</button>
+
+  <h3>目前商品</h3>
+  <div id="itemList"></div>
+</section>
+
+<!-- 設定 -->
+<section class="page" id="p-set">
+  <h3>新增學生</h3>
+  <div class="field"><label>姓名</label><input id="stName" placeholder="王小明"></div>
+  <div class="field"><label>頭像</label><div class="avpick" id="avPick"></div></div>
+  <button class="btn gold" id="stAdd" style="width:100%">新增</button>
+
+  <h3>學生管理</h3>
+  <div id="manageList"></div>
+
+  <h3>加減分理由</h3>
+  <div class="field">
+    <label>加分（一行一個：名稱,分數）</label>
+    <textarea id="rsAdd"></textarea>
+  </div>
+  <div class="field">
+    <label>扣分（一行一個：名稱,分數，分數填正數）</label>
+    <textarea id="rsSub"></textarea>
+  </div>
+  <button class="btn gold" id="rsSave" style="width:100%">儲存理由</button>
+
+  <h3>其他</h3>
+  <button class="btn" id="expCsv" style="width:100%;margin-bottom:9px">匯出成績 CSV</button>
+  <button class="btn red" id="resetAll" style="width:100%">全班歸零（累積分＋餘額）</button>
+  <div class="hint">歸零只清分數，學生名單跟商品都會留著。</div>
+</section>
+
+<div id="sheet"><div class="box">
+  <div class="who">
+    <div class="av" id="shAv"></div>
+    <div><div class="nm" id="shNm"></div><div class="sub" id="shSub"></div></div>
+    <button class="btn sm" id="shClose" style="margin-left:auto">關閉</button>
+  </div>
+  <h3 style="margin-top:0">加分</h3>
+  <div class="reasons" id="shAdd"></div>
+  <h3>扣分</h3>
+  <div class="reasons" id="shSub2"></div>
+  <h3>自訂</h3>
+  <div class="two">
+    <input id="shCustom" type="number" placeholder="分數" style="padding:13px;background:var(--card);border:1px solid var(--line);border-radius:12px;color:var(--ink)">
+    <input id="shWhy" placeholder="原因" style="padding:13px;background:var(--card);border:1px solid var(--line);border-radius:12px;color:var(--ink)">
+  </div>
+  <div class="two" style="margin-top:10px">
+    <button class="btn" id="shCP" style="color:var(--plus)">加上去</button>
+    <button class="btn" id="shCM" style="color:var(--minus)">扣掉</button>
+  </div>
+</div></div>
+
+<nav>
+  <div class="on" data-p="points"><i>⭐</i>點數</div>
+  <div data-p="shop"><i>🛒</i>商店</div>
+  <div data-p="set"><i>⚙️</i>設定</div>
+</nav>
+
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc,
+  onSnapshot, query, orderBy, limit, serverTimestamp, getDoc }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { firebaseConfig, ADMIN_PIN, DEFAULT_REASONS, AVATARS, tierOf, avatarHTML, esc }
+  from "./config.js";
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+signInAnonymously(getAuth(app))
+  .then(() => conn.textContent = "已連線")
+  .catch(e => { conn.textContent = "未登入"; console.warn(e.code); });
+
+const $ = id => document.getElementById(id);
+const conn = $("conn");
+let students = [], items = [], reasons = DEFAULT_REASONS;
+
+/* ---------- 鎖 ---------- */
+function unlock(){ $("lock").style.display = "none"; }
+if (sessionStorage.getItem("ok") === "1") unlock();
+$("pinGo").onclick = () => {
+  if ($("pin").value === ADMIN_PIN){ sessionStorage.setItem("ok","1"); unlock(); }
+  else { $("lockErr").textContent = "密碼不對"; $("pin").value = ""; }
+};
+$("pin").addEventListener("keydown", e => { if (e.key === "Enter") $("pinGo").click(); });
+
+/* ---------- 分頁 ---------- */
+const titles = { points:"點數", shop:"商店", set:"設定" };
+document.querySelectorAll("nav div").forEach(n => n.onclick = () => {
+  document.querySelectorAll("nav div").forEach(x => x.classList.remove("on"));
+  document.querySelectorAll(".page").forEach(x => x.classList.remove("on"));
+  n.classList.add("on");
+  $("p-" + n.dataset.p).classList.add("on");
+  $("ttl").textContent = titles[n.dataset.p];
+  window.scrollTo(0,0);
+});
+
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("on");
+  clearTimeout(t._x); t._x = setTimeout(() => t.classList.remove("on"), 1600);
+}
+
+/* ---------- 資料 ---------- */
+onSnapshot(query(collection(db,"students"), orderBy("total","desc")), s => {
+  students = s.docs.map(d => ({ id:d.id, ...d.data() }));
+  renderStudents(); renderManage(); renderBuyWho();
+});
+onSnapshot(collection(db,"items"), s => {
+  items = s.docs.map(d => ({ id:d.id, ...d.data() }))
+    .sort((a,b) => (a.price||0) - (b.price||0));
+  renderItems(); renderBuyArea();
+});
+onSnapshot(query(collection(db,"logs"), orderBy("at","desc"), limit(30)), s => {
+  const list = s.docs.map(d => d.data());
+  $("logList").innerHTML = list.length ? list.map(l => {
+    const d = l.delta || 0;
+    return `<div class="log"><b>${esc(l.studentName)}</b> ${esc(l.reason)}
+      <span class="d ${d>=0?"p":"m"}">${d>=0?"+":""}${d}</span></div>`;
+  }).join("") : `<div class="hint">還沒有紀錄</div>`;
+});
+(async () => {
+  const ref = doc(db, "config", "reasons");
+  const snap = await getDoc(ref).catch(() => null);
+  if (snap && snap.exists()) reasons = snap.data();
+  else await setDoc(ref, DEFAULT_REASONS).catch(() => {});
+  fillReasonBoxes();
+})();
+
+/* ---------- 點數頁 ---------- */
+function renderStudents(){
+  $("stuList").innerHTML = students.length ? students.map(s => {
+    const t = tierOf(s.total||0);
+    return `<div class="row tap" data-open="${s.id}">
+      <div class="av">${avatarHTML(s.avatar)}</div>
+      <div class="info"><div class="nm">${esc(s.name)}</div>
+        <div class="sub">${t.name} · 累積 ${s.total||0}</div></div>
+      <div class="big num">${s.wallet||0}</div>
+    </div>`;
+  }).join("") : `<div class="hint">還沒有學生，去「設定」新增。</div>`;
+  $("stuList").querySelectorAll("[data-open]").forEach(el =>
+    el.onclick = () => openSheet(el.dataset.open));
+}
+
+/* ---------- 加減分面板 ---------- */
+let cur = null;
+function openSheet(id){
+  cur = students.find(s => s.id === id); if (!cur) return;
+  $("shAv").innerHTML = avatarHTML(cur.avatar);
+  $("shNm").textContent = cur.name;
+  $("shSub").textContent = `可用 ${cur.wallet||0} 點 · 累積 ${cur.total||0} 分`;
+  $("shAdd").innerHTML = (reasons.add||[]).map((r,i) =>
+    `<div class="rb p" data-k="add" data-i="${i}">${esc(r.label)}<b>+${r.points}</b></div>`).join("");
+  $("shSub2").innerHTML = (reasons.sub||[]).map((r,i) =>
+    `<div class="rb m" data-k="sub" data-i="${i}">${esc(r.label)}<b>−${r.points}</b></div>`).join("");
+  document.querySelectorAll(".rb").forEach(b => b.onclick = () => {
+    const r = reasons[b.dataset.k][+b.dataset.i];
+    apply(b.dataset.k === "add" ? r.points : -r.points, r.label);
+  });
+  $("shCustom").value = ""; $("shWhy").value = "";
+  $("sheet").classList.add("on");
+}
+$("shClose").onclick = () => $("sheet").classList.remove("on");
+$("sheet").onclick = e => { if (e.target.id === "sheet") $("sheet").classList.remove("on"); };
+$("shCP").onclick = () => customPoint(1);
+$("shCM").onclick = () => customPoint(-1);
+function customPoint(sign){
+  const n = Math.abs(parseInt($("shCustom").value, 10));
+  if (!n) return toast("先填分數");
+  apply(sign * n, $("shWhy").value.trim() || "手動調整");
+}
+
+async function apply(delta, reason){
+  if (!cur) return;
+  const total  = cur.total || 0, wallet = cur.wallet || 0;
+  const nTotal = delta > 0 ? total + delta : total;         // 扣分不動累積分
+  const nWallet = Math.max(0, wallet + delta);              // 餘額最低 0
+  const real   = nWallet - wallet;                          // 實際變動（可能被 0 卡住）
+  await updateDoc(doc(db,"students",cur.id), { total:nTotal, wallet:nWallet });
+  await addDoc(collection(db,"logs"), {
+    studentId:cur.id, studentName:cur.name, delta:real, reason, kind:"point", at:serverTimestamp()
+  });
+  cur = { ...cur, total:nTotal, wallet:nWallet };
+  $("shSub").textContent = `可用 ${nWallet} 點 · 累積 ${nTotal} 分`;
+  toast(`${cur.name} ${real >= 0 ? "+" : ""}${real}`);
+}
+
+/* ---------- 商店頁 ---------- */
+function renderBuyWho(){
+  const sel = $("buyWho"), keep = sel.value;
+  sel.innerHTML = `<option value="">— 請選擇 —</option>` +
+    students.map(s => `<option value="${s.id}">${esc(s.name)}（${s.wallet||0} 點）</option>`).join("");
+  sel.value = keep;
+}
+$("buyWho").onchange = renderBuyArea;
+
+function renderBuyArea(){
+  const s = students.find(x => x.id === $("buyWho").value);
+  const box = $("buyArea");
+  if (!s){ box.innerHTML = `<div class="hint">選一位學生後，這裡會列出他買得起的東西。</div>`; return; }
+  const live = items.filter(i => i.active !== false);
+  if (!live.length){ box.innerHTML = `<div class="hint">還沒上架商品。</div>`; return; }
+  box.innerHTML = `<div class="hint" style="margin-bottom:10px">${esc(s.name)} 目前有
+    <b style="color:var(--gold)">${s.wallet||0}</b> 點</div>
+    <div class="buygrid">` + live.map(i => {
+      const isAv = i.type === "avatar";
+      const out  = !isAv && (i.stock||0) <= 0;
+      const poor = (s.wallet||0) < (i.price||0);
+      const ic = /^https?:\/\//.test(i.emoji||"") ? `<img src="${esc(i.emoji)}">` : (i.emoji||"🎁");
+      return `<div class="buy ${out||poor?"no":""}" data-buy="${out||poor?"":i.id}">
+        <div class="ic">${ic}</div><div class="n">${esc(i.name)}</div>
+        <div class="p">${i.price||0} 點</div>
+        <div class="s">${isAv ? "頭像" : out ? "售完" : `剩 ${i.stock||0}`}${poor?" · 點數不夠":""}</div>
+      </div>`;
+    }).join("") + `</div>`;
+  box.querySelectorAll("[data-buy]").forEach(el => {
+    if (!el.dataset.buy) return;
+    el.onclick = () => doBuy(s.id, el.dataset.buy);
+  });
+}
+
+async function doBuy(sid, iid){
+  const s = students.find(x => x.id === sid), i = items.find(x => x.id === iid);
+  if (!s || !i) return;
+  if ((s.wallet||0) < (i.price||0)) return toast("點數不夠");
+  if (!confirm(`確定讓 ${s.name} 用 ${i.price} 點換「${i.name}」？`)) return;
+
+  const patch = { wallet: (s.wallet||0) - (i.price||0) };
+  if (i.type === "avatar") patch.avatar = i.emoji;
+  await updateDoc(doc(db,"students",sid), patch);
+  if (i.type !== "avatar") await updateDoc(doc(db,"items",iid), { stock: Math.max(0,(i.stock||0)-1) });
+  await addDoc(collection(db,"logs"), {
+    studentId:sid, studentName:s.name, delta:-(i.price||0),
+    reason:`兌換「${i.name}」`, kind:"buy", at:serverTimestamp()
+  });
+  toast("兌換完成");
+}
+
+$("itAdd").onclick = async () => {
+  const name = $("itName").value.trim();
+  if (!name) return toast("填一下名稱");
+  const type = $("itType").value;
+  await addDoc(collection(db,"items"), {
+    name, emoji: $("itEmoji").value.trim() || (type==="avatar"?"🎭":"🎁"),
+    price: Math.max(0, parseInt($("itPrice").value,10) || 0),
+    stock: type === "avatar" ? 999 : Math.max(0, parseInt($("itStock").value,10) || 0),
+    type, active:true
+  });
+  $("itName").value = ""; $("itEmoji").value = "";
+  toast("已上架");
+};
+
+function renderItems(){
+  $("itemList").innerHTML = items.length ? items.map(i => {
+    const ic = /^https?:\/\//.test(i.emoji||"") ? `<img src="${esc(i.emoji)}">` : (i.emoji||"🎁");
+    return `<div class="row">
+      <div class="av">${ic}</div>
+      <div class="info"><div class="nm">${esc(i.name)}</div>
+        <div class="sub">${i.price||0} 點 · ${i.type==="avatar"?"頭像":`庫存 ${i.stock||0}`}</div></div>
+      ${i.type!=="avatar" ? `<button class="btn sm" data-st="${i.id}">補貨</button>` : ""}
+      <button class="btn sm red" data-del="${i.id}">刪</button>
+    </div>`;
+  }).join("") : `<div class="hint">還沒有商品。</div>`;
+  $("itemList").querySelectorAll("[data-st]").forEach(b => b.onclick = async () => {
+    const i = items.find(x => x.id === b.dataset.st);
+    const n = prompt(`「${i.name}」庫存改成幾個？`, i.stock||0);
+    if (n === null) return;
+    await updateDoc(doc(db,"items",i.id), { stock: Math.max(0, parseInt(n,10)||0) });
+  });
+  $("itemList").querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
+    const i = items.find(x => x.id === b.dataset.del);
+    if (confirm(`刪掉「${i.name}」？`)) await deleteDoc(doc(db,"items",i.id));
+  });
+}
+
+/* ---------- 設定頁 ---------- */
+let pickAv = AVATARS[0];
+$("avPick").innerHTML = AVATARS.map((a,i) =>
+  `<span class="${i===0?"on":""}" data-a="${a}">${a}</span>`).join("");
+$("avPick").querySelectorAll("span").forEach(el => el.onclick = () => {
+  $("avPick").querySelectorAll("span").forEach(x => x.classList.remove("on"));
+  el.classList.add("on"); pickAv = el.dataset.a;
+});
+
+$("stAdd").onclick = async () => {
+  const name = $("stName").value.trim();
+  if (!name) return toast("填一下名字");
+  await addDoc(collection(db,"students"), { name, avatar:pickAv, total:0, wallet:0 });
+  $("stName").value = "";
+  toast("已新增");
+};
+
+function renderManage(){
+  $("manageList").innerHTML = students.length ? students.map(s => `
+    <div class="row">
+      <div class="av">${avatarHTML(s.avatar)}</div>
+      <div class="info"><div class="nm">${esc(s.name)}</div>
+        <div class="sub">累積 ${s.total||0} · 餘額 ${s.wallet||0}</div></div>
+      <button class="btn sm" data-edit="${s.id}">編輯</button>
+      <button class="btn sm red" data-rm="${s.id}">刪</button>
+    </div>`).join("") : `<div class="hint">還沒有學生。</div>`;
+
+  $("manageList").querySelectorAll("[data-edit]").forEach(b => b.onclick = async () => {
+    const s = students.find(x => x.id === b.dataset.edit);
+    const name = prompt("姓名", s.name); if (name === null) return;
+    const avatar = prompt("頭像（emoji 或圖片網址）", s.avatar || "🙂"); if (avatar === null) return;
+    const total = prompt("累積分（決定特效等級）", s.total||0); if (total === null) return;
+    const wallet = prompt("可用點數", s.wallet||0); if (wallet === null) return;
+    await updateDoc(doc(db,"students",s.id), {
+      name: name.trim() || s.name, avatar: avatar.trim() || "🙂",
+      total: Math.max(0, parseInt(total,10)||0), wallet: Math.max(0, parseInt(wallet,10)||0)
+    });
+    toast("已更新");
+  });
+  $("manageList").querySelectorAll("[data-rm]").forEach(b => b.onclick = async () => {
+    const s = students.find(x => x.id === b.dataset.rm);
+    if (confirm(`刪掉 ${s.name}？分數會一起不見。`)) await deleteDoc(doc(db,"students",s.id));
+  });
+}
+
+function fillReasonBoxes(){
+  $("rsAdd").value = (reasons.add||[]).map(r => `${r.label},${r.points}`).join("\n");
+  $("rsSub").value = (reasons.sub||[]).map(r => `${r.label},${r.points}`).join("\n");
+}
+const parseReasons = txt => txt.split("\n").map(l => l.trim()).filter(Boolean).map(l => {
+  const [label, p] = l.split(",");
+  return { label: (label||"").trim(), points: Math.abs(parseInt(p,10)) || 1 };
+}).filter(r => r.label);
+
+$("rsSave").onclick = async () => {
+  reasons = { add: parseReasons($("rsAdd").value), sub: parseReasons($("rsSub").value) };
+  await setDoc(doc(db,"config","reasons"), reasons);
+  toast("理由已更新");
+};
+
+$("expCsv").onclick = () => {
+  const rows = [["姓名","累積分","等級","可用點數"],
+    ...students.map(s => [s.name, s.total||0, tierOf(s.total||0).name, s.wallet||0])];
+  const csv = "\uFEFF" + rows.map(r => r.join(",")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type:"text/csv" }));
+  a.download = `星塵榜_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+};
+
+$("resetAll").onclick = async () => {
+  if (!confirm("確定把全班累積分和餘額都歸零？")) return;
+  if (!confirm("再確認一次，這個動作不能復原。")) return;
+  for (const s of students) await updateDoc(doc(db,"students",s.id), { total:0, wallet:0 });
+  toast("已全部歸零");
+};
+</script>
+</body>
+</html>
