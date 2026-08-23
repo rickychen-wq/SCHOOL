@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>星塵榜</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070B1C; --line:rgba(255,255,255,.10);
+  --ink:#EEF2FF; --dim:#8C97B8;
+  --stone:#8A94A6; --gold:#FFC53D; --violet:#A855F7; --cyan:#22D3EE; --legend:#FF4D8D;
+  --plus:#4ADE80; --minus:#FB7185;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:
+    radial-gradient(1200px 700px at 15% -10%, #1B2455 0%, transparent 60%),
+    radial-gradient(900px 600px at 90% 110%, #2A1240 0%, transparent 60%),
+    var(--bg);
+  color:var(--ink); font-family:"Noto Sans TC",system-ui,sans-serif;
+  overflow:hidden; user-select:none; -webkit-tap-highlight-color:transparent;
+}
+#stars{position:fixed;inset:0;pointer-events:none;opacity:.55}
+#stars i{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle 4s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
+
+header{display:flex;align-items:center;gap:18px;padding:12px 24px;
+  border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.04),transparent)}
+.brand{display:flex;align-items:baseline;gap:12px}
+.brand h1{font-size:26px;font-weight:900;letter-spacing:3px}
+.brand small{font-family:"Chakra Petch",monospace;color:var(--dim);letter-spacing:3px;font-size:12px}
+nav{display:flex;gap:10px;margin-left:auto}
+.tab{font-size:20px;font-weight:900;padding:11px 30px;border-radius:14px;cursor:pointer;
+  background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--dim);transition:.18s}
+.tab.on{background:linear-gradient(135deg,#FFC53D,#FF8A3D);color:#241500;border-color:transparent;
+  box-shadow:0 6px 24px rgba(255,180,60,.35)}
+.mini{font-size:13px;padding:9px 12px;border-radius:10px;background:rgba(255,255,255,.05);
+  border:1px solid var(--line);color:var(--dim);cursor:pointer;font-family:"Chakra Petch",monospace}
+.mini.on{color:var(--gold);border-color:rgba(255,197,61,.5)}
+.tools{display:flex;gap:8px;margin-left:14px}
+
+main{height:calc(100vh - 67px);padding:20px}
+.page{display:none;height:100%}
+.page.on{display:block}
+
+/* ---------- 學生榜 ---------- */
+#grid{height:100%;display:grid;gap:14px;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));grid-auto-rows:1fr}
+.card{position:relative;border-radius:22px;overflow:hidden;
+  background:linear-gradient(165deg,#141B3D,#0B1029);
+  border:2px solid rgba(255,255,255,.10);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:12px 10px 16px;min-height:145px;
+  transition:transform .25s cubic-bezier(.2,1.4,.4,1)}
+.av-emo{font-size:clamp(30px,4.2vh,54px);line-height:1.05;
+  filter:drop-shadow(0 4px 10px rgba(0,0,0,.6))}
+.av-img{width:clamp(44px,6vh,72px);height:clamp(44px,6vh,72px);border-radius:50%;object-fit:cover;
+  border:2px solid var(--tc);box-shadow:0 4px 14px rgba(0,0,0,.5)}
+.card .name{font-size:clamp(16px,2.2vh,24px);font-weight:900;letter-spacing:1px;
+  white-space:nowrap;margin-top:2px}
+.card .pts{font-family:"Chakra Petch",monospace;font-weight:700;
+  font-size:clamp(28px,4.6vh,50px);line-height:1.05;color:var(--tc);
+  text-shadow:0 0 22px color-mix(in srgb,var(--tc) 60%,transparent)}
+.card .meta{font-size:12px;letter-spacing:2px;color:var(--tc);opacity:.95;font-weight:700}
+.card .meta b{color:var(--dim);font-weight:500;letter-spacing:0}
+.card .goal{font-size:11px;color:var(--dim);margin-top:5px}
+.card .medal{position:absolute;top:6px;left:10px;font-size:24px;filter:drop-shadow(0 2px 6px #000)}
+.bar{position:absolute;left:0;bottom:0;width:100%;height:4px;background:rgba(255,255,255,.07)}
+.bar i{display:block;height:100%;background:var(--tc);box-shadow:0 0 12px var(--tc);transition:width .6s}
+
+.t0{--tc:var(--stone)}
+.t1{--tc:var(--gold);border-color:rgba(255,197,61,.55);animation:breathe 3.4s ease-in-out infinite}
+@keyframes breathe{
+  0%,100%{box-shadow:0 0 0 1px rgba(255,197,61,.2),0 0 30px rgba(255,197,61,.12) inset}
+  50%{box-shadow:0 0 0 1px rgba(255,197,61,.5),0 0 50px rgba(255,197,61,.3) inset,0 0 26px rgba(255,197,61,.25)}}
+.t2{--tc:var(--violet);border-color:transparent}
+.t3{--tc:var(--cyan);border-color:transparent}
+.t4{--tc:var(--legend);border-color:transparent}
+
+.halo{display:none;position:absolute;inset:-60%;z-index:0;pointer-events:none}
+.t2 .halo,.t3 .halo,.t4 .halo{display:block}
+.halo::before{content:"";position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,#A855F7,#22D3EE,#FF4D8D,#FFC53D,#A855F7);
+  filter:blur(26px);opacity:.30;animation:spin 7s linear infinite}
+.t3 .halo::before{animation-duration:5s;opacity:.34}
+.t4 .halo::before{animation-duration:3.6s;opacity:.42}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.ring{display:none;position:absolute;inset:0;border-radius:22px;padding:2px;z-index:1;pointer-events:none;
+  background:conic-gradient(from 0deg,#FF4D8D,#FFC53D,#4ADE80,#22D3EE,#A855F7,#FF4D8D);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;animation:hue 4s linear infinite}
+.t2 .ring,.t3 .ring,.t4 .ring{display:block}
+@keyframes hue{to{filter:hue-rotate(360deg)}}
+
+.pc{display:none;position:absolute;inset:0;overflow:hidden;z-index:1;pointer-events:none}
+.t3 .pc,.t4 .pc{display:block}
+.pc i{position:absolute;bottom:-8px;width:5px;height:5px;border-radius:50%;
+  background:var(--tc);box-shadow:0 0 10px var(--tc);animation:rise 3.2s linear infinite}
+@keyframes rise{0%{transform:translateY(0) scale(.6);opacity:0}
+  15%{opacity:1}100%{transform:translateY(-200px) scale(1.2);opacity:0}}
+
+.t4{transform:translateY(-4px);box-shadow:0 18px 40px rgba(255,77,141,.28)}
+.t4 .name{background:linear-gradient(90deg,#fff,#FFC53D,#FF4D8D,#22D3EE,#fff);
+  background-size:300% 100%;-webkit-background-clip:text;background-clip:text;
+  color:transparent;animation:flow 3s linear infinite}
+@keyframes flow{to{background-position:300% 0}}
+.scan{display:none;position:absolute;left:0;right:0;top:0;height:32%;z-index:3;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(255,255,255,.16),transparent);
+  animation:sweep 3.2s ease-in-out infinite}
+.t4 .scan{display:block}
+@keyframes sweep{0%{transform:translateY(-120%)}60%,100%{transform:translateY(420%)}}
+
+.card > *:not(.halo):not(.ring):not(.pc){position:relative;z-index:2}
+
+.card.hit{transform:scale(1.07)}
+.float{position:absolute;left:50%;top:40%;z-index:9;font-family:"Chakra Petch",monospace;
+  font-weight:700;font-size:clamp(34px,5vh,54px);animation:fly 1.5s ease-out forwards;
+  pointer-events:none;text-shadow:0 0 18px currentColor}
+@keyframes fly{0%{opacity:0;transform:translate(-50%,20px) scale(.6)}
+  20%{opacity:1;transform:translate(-50%,0) scale(1.15)}
+  100%{opacity:0;transform:translate(-50%,-90px) scale(1)}}
+
+/* 升級全螢幕慶祝 */
+#levelup{position:fixed;inset:0;z-index:99;display:none;place-items:center;
+  background:radial-gradient(circle,rgba(0,0,0,.55),rgba(0,0,0,.88));backdrop-filter:blur(3px)}
+#levelup.on{display:grid;animation:fadein .3s}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+#levelup .box{text-align:center;animation:pop .6s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
+#levelup .lv{font-family:"Chakra Petch",monospace;letter-spacing:10px;color:var(--gold);font-size:20px}
+#levelup .who{font-size:64px;font-weight:900;margin:8px 0}
+#levelup .to{font-size:96px;font-weight:900;
+  background:linear-gradient(90deg,#FFC53D,#FF4D8D,#22D3EE);background-size:200%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;animation:flow 2s linear infinite}
+
+/* ---------- 商店 ---------- */
+#shopWrap{height:100%;overflow-y:auto;padding-right:6px}
+#shopGrid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.item{background:linear-gradient(165deg,#141B3D,#0B1029);border:1px solid var(--line);
+  border-radius:20px;padding:18px;text-align:center;position:relative;overflow:hidden}
+.item.av{border-color:rgba(168,85,247,.5);box-shadow:0 0 30px rgba(168,85,247,.14) inset}
+.item .ico{font-size:52px;line-height:1.1}
+.item .ico img{width:78px;height:78px;border-radius:50%;object-fit:cover;border:2px solid var(--violet)}
+.item .nm{font-size:21px;font-weight:900;margin-top:6px}
+.item .kind{font-size:11px;letter-spacing:2px;color:var(--violet);font-weight:700}
+.item .pr{font-family:"Chakra Petch",monospace;font-size:29px;font-weight:700;color:var(--gold);margin-top:6px}
+.item .st{font-size:13px;color:var(--dim);margin-top:2px}
+.item.out{filter:grayscale(1);opacity:.4}
+.item.out::after{content:"售完";position:absolute;top:12px;right:14px;font-size:18px;
+  font-weight:900;color:var(--minus)}
+.empty{color:var(--dim);text-align:center;padding:70px 0;font-size:20px;grid-column:1/-1}
+
+body.lowfx .halo::before,body.lowfx .pc,body.lowfx .scan,body.lowfx #stars i,
+body.lowfx .t1,body.lowfx .t4 .name,body.lowfx .ring{animation:none!important}
+body.lowfx .t4 .name{-webkit-text-fill-color:var(--ink);color:var(--ink)}
+body.lowfx .ring{background:linear-gradient(135deg,#FF4D8D,#22D3EE)}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+
+<header>
+  <div class="brand"><h1>星塵榜</h1><small>CLASS POINTS</small></div>
+  <nav>
+    <div class="tab on" data-p="board">學生榜</div>
+    <div class="tab" data-p="shop">商店</div>
+  </nav>
+  <div class="tools">
+    <div class="mini on" id="btnFx">特效 ON</div>
+    <div class="mini on" id="btnSnd">音效 ON</div>
+  </div>
+</header>
+
+<main>
+  <section class="page on" id="p-board"><div id="grid"><div class="empty">連線中…</div></div></section>
+  <section class="page" id="p-shop"><div id="shopWrap"><div id="shopGrid"></div></div></section>
+</main>
+
+<div id="levelup"><div class="box">
+  <div class="lv">LEVEL UP</div>
+  <div class="who" id="luWho"></div>
+  <div class="to" id="luTo"></div>
+</div></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, onSnapshot, query, orderBy }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { firebaseConfig, tierOf, nextTier, avatarHTML, esc } from "./config.js";
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+signInAnonymously(getAuth(app)).catch(e => console.warn("匿名登入失敗（規則若為測試模式可忽略）:", e.code));
+
+/* 星星 */
+const sw = document.getElementById("stars");
+for (let i = 0; i < 90; i++) {
+  const s = document.createElement("i");
+  s.style.left = Math.random()*100 + "%";
+  s.style.top  = Math.random()*100 + "%";
+  s.style.animationDelay = (Math.random()*4) + "s";
+  s.style.opacity = Math.random()*.8 + .2;
+  sw.appendChild(s);
+}
+
+/* 分頁 */
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("on"));
+  document.querySelectorAll(".page").forEach(x => x.classList.remove("on"));
+  t.classList.add("on");
+  document.getElementById("p-" + t.dataset.p).classList.add("on");
+});
+
+/* 開關 */
+const btnFx = document.getElementById("btnFx"), btnSnd = document.getElementById("btnSnd");
+let lowfx = localStorage.getItem("lowfx") === "1";
+let snd   = localStorage.getItem("snd") !== "0";
+function syncToggles(){
+  document.body.classList.toggle("lowfx", lowfx);
+  btnFx.textContent = lowfx ? "特效 OFF" : "特效 ON";
+  btnFx.classList.toggle("on", !lowfx);
+  btnSnd.textContent = snd ? "音效 ON" : "音效 OFF";
+  btnSnd.classList.toggle("on", snd);
+}
+btnFx.onclick  = () => { lowfx = !lowfx; localStorage.setItem("lowfx", lowfx?"1":"0"); syncToggles(); };
+btnSnd.onclick = () => { snd = !snd; localStorage.setItem("snd", snd?"1":"0"); syncToggles(); };
+syncToggles();
+
+/* 音效 */
+let ac = null;
+function beep(kind){
+  if (!snd) return;
+  try{
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const seq = kind === "up" ? [660,880,1320] : kind === "down" ? [420,260]
+              : [523,659,784,1047,1319];
+    seq.forEach((f,i) => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = "triangle"; o.frequency.value = f;
+      const t = ac.currentTime + i*0.09;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.16, t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t+0.24);
+      o.connect(g).connect(ac.destination); o.start(t); o.stop(t+0.26);
+    });
+  }catch(e){}
+}
+
+/* ---------- 學生榜 ---------- */
+const grid = document.getElementById("grid");
+const prev = {};          // { id: {wallet, total} }
+let first = true;
+
+function cardHTML(s, rank){
+  const total = s.total || 0, wallet = s.wallet || 0;
+  const t = tierOf(total), nx = nextTier(total);
+  const medal = rank === 0 ? "👑" : rank === 1 ? "🥈" : rank === 2 ? "🥉" : "";
+  let prog = 100, goal = "已達最高等級";
+  if (nx) {
+    prog = Math.round((total - t.min) / (nx.min - t.min) * 100);
+    goal = `離 ${nx.name} 還差 ${nx.min - total} 分`;
+  }
+  const parts = Array.from({length:6}, (_,i) =>
+    `<i style="left:${8+i*15}%;animation-delay:${(i*0.5).toFixed(1)}s"></i>`).join("");
+  return `<div class="card t${t.key}" data-id="${s.id}">
+    <div class="halo"></div><div class="ring"></div>
+    <div class="pc">${parts}</div><div class="scan"></div>
+    ${medal ? `<div class="medal">${medal}</div>` : ""}
+    ${avatarHTML(s.avatar)}
+    <div class="name">${esc(s.name)}</div>
+    <div class="pts">${wallet}</div>
+    <div class="meta">${t.name} <b>· 累積 ${total}</b></div>
+    <div class="goal">${goal}</div>
+    <div class="bar"><i style="width:${Math.max(0,Math.min(100,prog))}%"></i></div>
+  </div>`;
+}
+
+function popFloat(id, diff){
+  const el = grid.querySelector(`.card[data-id="${id}"]`);
+  if (!el) return;
+  const f = document.createElement("div");
+  f.className = "float";
+  f.textContent = (diff > 0 ? "+" : "") + diff;
+  f.style.color = diff > 0 ? "var(--plus)" : "var(--minus)";
+  f.style.transform = "translateX(-50%)";
+  el.appendChild(f);
+  el.classList.add("hit");
+  setTimeout(() => el.classList.remove("hit"), 320);
+  setTimeout(() => f.remove(), 1600);
+  beep(diff > 0 ? "up" : "down");
+}
+
+const lu = document.getElementById("levelup");
+function celebrate(name, tierName){
+  document.getElementById("luWho").textContent = name;
+  document.getElementById("luTo").textContent  = tierName;
+  lu.classList.add("on");
+  beep("lv");
+  setTimeout(() => lu.classList.remove("on"), 3200);
+}
+
+onSnapshot(query(collection(db, "students"), orderBy("total", "desc")), snap => {
+  const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  if (!list.length){
+    grid.innerHTML = `<div class="empty">還沒有學生，去後台的「設定」新增</div>`;
+    return;
+  }
+  grid.innerHTML = list.map((s,i) => cardHTML(s,i)).join("");
+
+  list.forEach(s => {
+    const p = prev[s.id];
+    const total = s.total || 0, wallet = s.wallet || 0;
+    if (!first && p) {
+      if (p.wallet !== wallet) popFloat(s.id, wallet - p.wallet);
+      if (tierOf(total).key > tierOf(p.total).key) {
+        setTimeout(() => celebrate(s.name, tierOf(total).name), 700);
+      }
+    }
+    prev[s.id] = { total, wallet };
+  });
+  first = false;
+}, err => {
+  grid.innerHTML = `<div class="empty">讀取失敗：${esc(err.message)}</div>`;
+});
+
+/* ---------- 商店 ---------- */
+const shopGrid = document.getElementById("shopGrid");
+onSnapshot(collection(db, "items"), snap => {
+  const list = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .filter(i => i.active !== false)
+    .sort((a,b) => (a.price||0) - (b.price||0));
+  if (!list.length){
+    shopGrid.innerHTML = `<div class="empty">商店還沒上架東西</div>`;
+    return;
+  }
+  shopGrid.innerHTML = list.map(i => {
+    const isAv = i.type === "avatar";
+    const out  = !isAv && (i.stock || 0) <= 0;
+    const ico  = /^https?:\/\//.test(i.emoji || "")
+      ? `<img src="${esc(i.emoji)}" alt="">` : (i.emoji || "🎁");
+    return `<div class="item ${isAv?"av":""} ${out?"out":""}">
+      <div class="ico">${ico}</div>
+      <div class="nm">${esc(i.name)}</div>
+      ${isAv ? `<div class="kind">頭像</div>` : ""}
+      <div class="pr">${i.price || 0} 點</div>
+      <div class="st">${isAv ? "換了就永久是你的" : `剩下 ${i.stock || 0} 個`}</div>
+    </div>`;
+  }).join("");
+});
+</script>
+</body>
+</html>
