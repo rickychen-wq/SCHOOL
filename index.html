@@ -68,7 +68,6 @@ main{height:calc(100vh - 67px);padding:20px}
 .card .meta{font-size:12px;letter-spacing:2px;color:var(--tc);opacity:.95;font-weight:700}
 .card .meta b{color:var(--dim);font-weight:500;letter-spacing:0}
 .card .goal{font-size:11px;color:var(--dim);margin-top:5px}
-.card .medal{position:absolute;top:6px;left:10px;font-size:24px;filter:drop-shadow(0 2px 6px #000)}
 .bar{position:absolute;left:0;bottom:0;width:100%;height:4px;background:rgba(255,255,255,.07)}
 .bar i{display:block;height:100%;background:var(--tc);box-shadow:0 0 12px var(--tc);transition:width .6s}
 
@@ -197,7 +196,6 @@ import { firebaseConfig, tierOf, nextTier, avatarHTML, esc } from "./config.js";
 
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
-signInAnonymously(getAuth(app)).catch(e => console.warn("匿名登入失敗（規則若為測試模式可忽略）:", e.code));
 
 /* 星星 */
 const sw = document.getElementById("stars");
@@ -258,10 +256,9 @@ const grid = document.getElementById("grid");
 const prev = {};          // { id: {wallet, total} }
 let first = true;
 
-function cardHTML(s, rank){
+function cardHTML(s){
   const total = s.total || 0, wallet = s.wallet || 0;
   const t = tierOf(total), nx = nextTier(total);
-  const medal = rank === 0 ? "👑" : rank === 1 ? "🥈" : rank === 2 ? "🥉" : "";
   let prog = 100, goal = "已達最高等級";
   if (nx) {
     prog = Math.round((total - t.min) / (nx.min - t.min) * 100);
@@ -272,7 +269,6 @@ function cardHTML(s, rank){
   return `<div class="card t${t.key}" data-id="${s.id}">
     <div class="halo"></div><div class="ring"></div>
     <div class="pc">${parts}</div><div class="scan"></div>
-    ${medal ? `<div class="medal">${medal}</div>` : ""}
     ${avatarHTML(s.avatar)}
     <div class="name">${esc(s.name)}</div>
     <div class="pts">${wallet}</div>
@@ -306,13 +302,15 @@ function celebrate(name, tierName){
   setTimeout(() => lu.classList.remove("on"), 3200);
 }
 
-onSnapshot(query(collection(db, "students"), orderBy("total", "desc")), snap => {
-  const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+function startBoard(){
+onSnapshot(collection(db, "students"), snap => {
+  const list = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .sort((a,b) => String(a.name).localeCompare(String(b.name), "zh-Hant"));
   if (!list.length){
     grid.innerHTML = `<div class="empty">還沒有學生，去後台的「設定」新增</div>`;
     return;
   }
-  grid.innerHTML = list.map((s,i) => cardHTML(s,i)).join("");
+  grid.innerHTML = list.map(s => cardHTML(s)).join("");
 
   list.forEach(s => {
     const p = prev[s.id];
@@ -329,9 +327,11 @@ onSnapshot(query(collection(db, "students"), orderBy("total", "desc")), snap => 
 }, err => {
   grid.innerHTML = `<div class="empty">讀取失敗：${esc(err.message)}</div>`;
 });
+}
 
 /* ---------- 商店 ---------- */
 const shopGrid = document.getElementById("shopGrid");
+function startShop(){
 onSnapshot(collection(db, "items"), snap => {
   const list = snap.docs.map(d => ({ id: d.id, ...d.data() }))
     .filter(i => i.active !== false)
@@ -353,7 +353,18 @@ onSnapshot(collection(db, "items"), snap => {
       <div class="st">${isAv ? "換了就永久是你的" : `剩下 ${i.stock || 0} 個`}</div>
     </div>`;
   }).join("");
+}, err => {
+  shopGrid.innerHTML = `<div class="empty">讀取失敗：${esc(err.message)}</div>`;
 });
+}
+
+/* ---------- 先登入，成功之後才開始讀資料 ---------- */
+signInAnonymously(getAuth(app))
+  .then(() => { startBoard(); startShop(); })
+  .catch(e => {
+    grid.innerHTML = `<div class="empty">登入失敗：${esc(e.code)}<br>
+      <span style="font-size:15px">到 Firebase Console → Authentication → Sign-in method → 啟用「匿名」</span></div>`;
+  });
 </script>
 </body>
 </html>
