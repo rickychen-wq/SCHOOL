@@ -233,9 +233,6 @@ import { firebaseConfig, ADMIN_PIN, DEFAULT_REASONS, AVATARS, tierOf, avatarHTML
 
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
-signInAnonymously(getAuth(app))
-  .then(() => conn.textContent = "已連線")
-  .catch(e => { conn.textContent = "未登入"; console.warn(e.code); });
 
 const $ = id => document.getElementById(id);
 const conn = $("conn");
@@ -267,15 +264,18 @@ function toast(msg){
 }
 
 /* ---------- 資料 ---------- */
+function startData(){
+const onErr = e => { conn.textContent = "讀取失敗"; toast("讀取失敗：" + e.code); console.error(e); };
+
 onSnapshot(query(collection(db,"students"), orderBy("total","desc")), s => {
   students = s.docs.map(d => ({ id:d.id, ...d.data() }));
   renderStudents(); renderManage(); renderBuyWho();
-});
+}, onErr);
 onSnapshot(collection(db,"items"), s => {
   items = s.docs.map(d => ({ id:d.id, ...d.data() }))
     .sort((a,b) => (a.price||0) - (b.price||0));
   renderItems(); renderBuyArea();
-});
+}, onErr);
 onSnapshot(query(collection(db,"logs"), orderBy("at","desc"), limit(30)), s => {
   const list = s.docs.map(d => d.data());
   $("logList").innerHTML = list.length ? list.map(l => {
@@ -283,7 +283,7 @@ onSnapshot(query(collection(db,"logs"), orderBy("at","desc"), limit(30)), s => {
     return `<div class="log"><b>${esc(l.studentName)}</b> ${esc(l.reason)}
       <span class="d ${d>=0?"p":"m"}">${d>=0?"+":""}${d}</span></div>`;
   }).join("") : `<div class="hint">還沒有紀錄</div>`;
-});
+}, onErr);
 (async () => {
   const ref = doc(db, "config", "reasons");
   const snap = await getDoc(ref).catch(() => null);
@@ -291,6 +291,7 @@ onSnapshot(query(collection(db,"logs"), orderBy("at","desc"), limit(30)), s => {
   else await setDoc(ref, DEFAULT_REASONS).catch(() => {});
   fillReasonBoxes();
 })();
+}
 
 /* ---------- 點數頁 ---------- */
 function renderStudents(){
@@ -514,6 +515,16 @@ $("resetAll").onclick = async () => {
   for (const s of students) await updateDoc(doc(db,"students",s.id), { total:0, wallet:0 });
   toast("已全部歸零");
 };
+
+/* ---------- 先登入，成功之後才開始讀資料 ---------- */
+signInAnonymously(getAuth(app))
+  .then(() => { conn.textContent = "已連線"; startData(); })
+  .catch(e => {
+    conn.textContent = "登入失敗";
+    $("stuList").innerHTML =
+      `<div class="hint" style="color:var(--minus)">登入失敗：${esc(e.code)}<br>
+       請到 Firebase Console → Authentication → Sign-in method → 啟用「匿名」。</div>`;
+  });
 </script>
 </body>
 </html>
