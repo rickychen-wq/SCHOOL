@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>頭像批次上架</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070B1C;--card:#111838;--line:rgba(255,255,255,.11);--ink:#EEF2FF;--dim:#8C97B8;--gold:#FFC53D}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;
+  padding:22px;max-width:1100px;margin:0 auto;padding-bottom:120px}
+h1{font-size:21px;font-weight:900;letter-spacing:2px}
+p.sub{color:var(--dim);font-size:13px;line-height:1.8;margin:6px 0 18px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+button{padding:11px 16px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.06);
+  color:var(--ink);font-family:inherit;font-weight:900;font-size:14px;cursor:pointer}
+button.gold{background:linear-gradient(135deg,#FFC53D,#FF8A3D);color:#241500;border:0}
+button:disabled{opacity:.4;cursor:default}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+.c{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center;
+  position:relative;transition:.15s}
+.c.off{opacity:.34}
+.c img{width:96px;height:96px;border-radius:50%;object-fit:cover;background:#0B1029}
+.c .fn{font-family:"Chakra Petch",monospace;font-size:11px;color:var(--dim);margin:6px 0 8px;word-break:break-all}
+.c input{width:100%;padding:9px;background:#0B1029;border:1px solid var(--line);border-radius:9px;
+  color:var(--ink);font-family:inherit;font-size:14px;margin-bottom:6px;text-align:center}
+.c input.pr{color:var(--gold);font-family:"Chakra Petch",monospace;font-weight:700}
+.c .tg{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:8px;border:1px solid var(--line);
+  display:grid;place-items:center;font-size:15px;cursor:pointer;background:#0B1029}
+.c.on .tg{background:var(--gold);color:#241500;border-color:transparent}
+.foot{position:fixed;left:0;right:0;bottom:0;padding:14px 22px calc(14px + env(safe-area-inset-bottom));
+  background:rgba(8,12,32,.97);border-top:1px solid var(--line);display:flex;gap:12px;align-items:center}
+.foot .n{font-family:"Chakra Petch",monospace;color:var(--gold);font-size:15px;margin-right:auto}
+#out{white-space:pre-wrap;font-size:13px;color:var(--dim);line-height:1.9;margin-top:16px}
+a{color:var(--gold)}
+</style>
+</head>
+<body>
+<h1>頭像批次上架</h1>
+<p class="sub">
+  改名字、改價格，右上角方塊可以取消不要上架的。<br>
+  已經在商店裡的（同一個圖片路徑）會自動跳過，重複按不會重複上架。<br>
+  上架完這個檔案可以刪掉。
+</p>
+
+<div class="bar">
+  <button id="all">全選</button>
+  <button id="none">全不選</button>
+  <button id="p60">全部改 60</button>
+  <button id="p120">全部改 120</button>
+  <button id="p220">全部改 220</button>
+</div>
+
+<div class="grid" id="grid"></div>
+<div id="out"></div>
+
+<div class="foot">
+  <div class="n" id="cnt"></div>
+  <button class="gold" id="go">上架</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, getDocs, addDoc }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDrDK9sr3U1239BzbU7xMCc5QddYvCC34s",
+  authDomain: "school-e429d.firebaseapp.com",
+  projectId: "school-e429d",
+  storageBucket: "school-e429d.firebasestorage.app",
+  messagingSenderId: "881372767341",
+  appId: "1:881372767341:web:b3b66c431594b5c4a94b64",
+  measurementId: "G-B1DENGMX27"
+};
+
+const N = 20;                       // 頭像張數
+const DIR = "avatars/";             // 資料夾
+const EXT = ".webp";                // 副檔名
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const $ = id => document.getElementById(id);
+
+const ready = signInAnonymously(getAuth(app)).catch(e => {
+  $("out").textContent = "登入失敗：" + e.code;
+  $("go").disabled = true; throw e;
+});
+
+const grid = $("grid");
+grid.innerHTML = Array.from({length:N}, (_,i) => {
+  const n = String(i+1).padStart(2,"0");
+  const path = `${DIR}avatar-${n}${EXT}`;
+  return `<div class="c on" data-i="${i}">
+    <div class="tg">✓</div>
+    <img src="${path}" alt="">
+    <div class="fn">${path}</div>
+    <input class="nm" value="頭像 ${n}">
+    <input class="pr" type="number" value="120">
+  </div>`;
+}).join("");
+
+grid.querySelectorAll(".tg").forEach(t => t.onclick = () => {
+  const c = t.parentElement;
+  c.classList.toggle("on"); c.classList.toggle("off");
+  count();
+});
+function count(){
+  const n = grid.querySelectorAll(".c.on").length;
+  $("cnt").textContent = `已選 ${n} / ${N}`;
+  $("go").disabled = n === 0;
+}
+$("all").onclick  = () => { grid.querySelectorAll(".c").forEach(c => { c.classList.add("on"); c.classList.remove("off"); }); count(); };
+$("none").onclick = () => { grid.querySelectorAll(".c").forEach(c => { c.classList.remove("on"); c.classList.add("off"); }); count(); };
+[["p60",60],["p120",120],["p220",220]].forEach(([id,v]) =>
+  $(id).onclick = () => grid.querySelectorAll(".pr").forEach(i => i.value = v));
+count();
+
+$("go").onclick = async () => {
+  $("go").disabled = true;
+  const out = $("out");
+  out.textContent = "檢查商店現有內容…\n";
+  try{
+    await ready;
+    const snap = await getDocs(collection(db, "items"));
+    const have = new Set(snap.docs.map(d => String(d.data().emoji || "")));
+    let added = 0, skipped = 0;
+
+    for (const c of grid.querySelectorAll(".c.on")){
+      const path  = c.querySelector(".fn").textContent.trim();
+      const name  = c.querySelector(".nm").value.trim() || path;
+      const price = Math.max(0, parseInt(c.querySelector(".pr").value, 10) || 0);
+      if (have.has(path)){ skipped++; out.textContent += `跳過 ${name}（已上架）\n`; continue; }
+      await addDoc(collection(db, "items"), {
+        name, emoji: path, price, stock: 999, type: "avatar", active: true
+      });
+      added++;
+      out.textContent += `已上架 ${name} — ${price} 點\n`;
+    }
+    out.textContent += `\n完成：新增 ${added} 個、跳過 ${skipped} 個。\n`;
+    out.innerHTML += `<a href="./admin.html">→ 去後台</a>　<a href="./index.html">→ 看大螢幕商店</a>`;
+  }catch(e){
+    out.textContent += "\n失敗：" + (e.code || e.message);
+    $("go").disabled = false;
+  }
+};
+</script>
+</body>
+</html>
