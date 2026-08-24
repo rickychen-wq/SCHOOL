@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>星塵榜</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
@@ -18,14 +17,15 @@
 html,body{height:100%}
 body{
   background:
-    radial-gradient(1200px 700px at 15% -10%, #1B2455 0%, transparent 60%),
-    radial-gradient(900px 600px at 90% 110%, #2A1240 0%, transparent 60%),
+    radial-gradient(1200px 700px at 15% -10%,#1B2455 0%,transparent 60%),
+    radial-gradient(900px 600px at 90% 110%,#2A1240 0%,transparent 60%),
     var(--bg);
-  color:var(--ink); font-family:"Noto Sans TC",system-ui,sans-serif;
-  overflow:hidden; user-select:none; -webkit-tap-highlight-color:transparent;
+  color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;
+  overflow:hidden;user-select:none;-webkit-tap-highlight-color:transparent;
 }
 #stars{position:fixed;inset:0;pointer-events:none;opacity:.55}
-#stars i{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle 4s ease-in-out infinite}
+#stars i{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;
+  animation:twinkle 4s ease-in-out infinite}
 @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
 
 header{display:flex;align-items:center;gap:18px;padding:12px 24px;
@@ -47,97 +47,166 @@ main{height:calc(100vh - 67px);padding:20px}
 .page{display:none;height:100%}
 .page.on{display:block}
 
-/* ---------- 學生榜 ---------- */
+/* ================= 卡片 ================= */
 #grid{height:100%;display:grid;gap:14px;
   grid-template-columns:repeat(auto-fit,minmax(200px,1fr));grid-auto-rows:1fr}
 .card{position:relative;border-radius:22px;overflow:hidden;
   background:linear-gradient(165deg,#141B3D,#0B1029);
-  border:2px solid rgba(255,255,255,.10);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:12px 10px 16px;min-height:145px;
-  transition:transform .25s cubic-bezier(.2,1.4,.4,1)}
-.av-emo{font-size:clamp(30px,4.2vh,54px);line-height:1.05;
-  filter:drop-shadow(0 4px 10px rgba(0,0,0,.6))}
-.av-img{width:clamp(44px,6vh,72px);height:clamp(44px,6vh,72px);border-radius:50%;object-fit:cover;
-  border:2px solid var(--tc);box-shadow:0 4px 14px rgba(0,0,0,.5)}
-.card .name{font-size:clamp(16px,2.2vh,24px);font-weight:900;letter-spacing:1px;
-  white-space:nowrap;margin-top:2px}
-.card .pts{font-family:"Chakra Petch",monospace;font-weight:700;
-  font-size:clamp(28px,4.6vh,50px);line-height:1.05;color:var(--tc);
-  text-shadow:0 0 22px color-mix(in srgb,var(--tc) 60%,transparent)}
-.card .meta{font-size:12px;letter-spacing:2px;color:var(--tc);opacity:.95;font-weight:700}
-.card .meta b{color:var(--dim);font-weight:500;letter-spacing:0}
-.card .goal{font-size:11px;color:var(--dim);margin-top:5px}
-.bar{position:absolute;left:0;bottom:0;width:100%;height:4px;background:rgba(255,255,255,.07)}
+  border:2px solid rgba(255,255,255,.10);min-height:145px;
+  transition:transform .3s cubic-bezier(.2,1.4,.4,1),box-shadow .4s}
+.body{position:relative;z-index:6;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 10px 16px}
+.name{font-size:clamp(16px,2.2vh,24px);font-weight:900;letter-spacing:1px;white-space:nowrap;margin-top:4px}
+.pts{font-family:"Chakra Petch",monospace;font-weight:700;font-size:clamp(28px,4.6vh,50px);
+  line-height:1.05;color:var(--tc);text-shadow:0 0 22px color-mix(in srgb,var(--tc) 60%,transparent)}
+.meta{font-size:12px;letter-spacing:2px;color:var(--tc);opacity:.95;font-weight:700}
+.meta b{color:var(--dim);font-weight:500;letter-spacing:0}
+.goal{font-size:11px;color:var(--dim);margin-top:5px}
+.bar{position:absolute;left:0;bottom:0;width:100%;height:4px;background:rgba(255,255,255,.07);z-index:6}
 .bar i{display:block;height:100%;background:var(--tc);box-shadow:0 0 12px var(--tc);transition:width .6s}
 
+/* G 頭像底座 */
+.avwrap{position:relative;width:clamp(56px,7.2vh,88px);height:clamp(56px,7.2vh,88px);
+  display:grid;place-items:center;--r:calc(clamp(56px,7.2vh,88px) / 2 + 7px)}
+.avring{position:absolute;inset:0;border-radius:50%;
+  border:2px solid color-mix(in srgb,var(--tc) 55%,transparent);
+  background:radial-gradient(circle,color-mix(in srgb,var(--tc) 16%,transparent),transparent 70%)}
+.t1 .avring,.t2 .avring,.t3 .avring,.t4 .avring{
+  box-shadow:0 0 16px color-mix(in srgb,var(--tc) 45%,transparent),
+             inset 0 0 12px color-mix(in srgb,var(--tc) 30%,transparent);
+  animation:ringpulse 2.8s ease-in-out infinite}
+@keyframes ringpulse{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.06);opacity:1}}
+.av-emo{font-size:clamp(28px,3.9vh,48px);line-height:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.6))}
+.av-img{width:78%;height:78%;border-radius:50%;object-fit:cover}
+
+/* E 星軌（傳說） */
+.orbit{display:none;position:absolute;inset:0;animation:spin 6s linear infinite}
+.t4 .orbit{display:block}
+.orbit i{position:absolute;top:50%;left:50%;width:7px;height:7px;margin:-3.5px;border-radius:50%;
+  background:#fff;box-shadow:0 0 10px #fff,0 0 20px var(--legend)}
+.orbit i:nth-child(1){transform:rotate(0deg) translateY(calc(var(--r) * -1))}
+.orbit i:nth-child(2){transform:rotate(120deg) translateY(calc(var(--r) * -1))}
+.orbit i:nth-child(3){transform:rotate(240deg) translateY(calc(var(--r) * -1))}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* 顏色 */
 .t0{--tc:var(--stone)}
 .t1{--tc:var(--gold);border-color:rgba(255,197,61,.55);animation:breathe 3.4s ease-in-out infinite}
 @keyframes breathe{
-  0%,100%{box-shadow:0 0 0 1px rgba(255,197,61,.2),0 0 30px rgba(255,197,61,.12) inset}
-  50%{box-shadow:0 0 0 1px rgba(255,197,61,.5),0 0 50px rgba(255,197,61,.3) inset,0 0 26px rgba(255,197,61,.25)}}
+  0%,100%{box-shadow:0 0 0 1px rgba(255,197,61,.18),0 0 30px rgba(255,197,61,.10) inset}
+  50%{box-shadow:0 0 0 1px rgba(255,197,61,.5),0 0 50px rgba(255,197,61,.28) inset,0 0 26px rgba(255,197,61,.22)}}
 .t2{--tc:var(--violet);border-color:transparent}
 .t3{--tc:var(--cyan);border-color:transparent}
 .t4{--tc:var(--legend);border-color:transparent}
 
+/* A 見習織紋 */
+.weave{display:none;position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 2px,transparent 2px 9px)}
+.t0 .weave{display:block}
+.t0 .pts{opacity:.85}
+
+/* B 金屬掃光 + 碎閃 */
+.sheen{display:none;position:absolute;top:-40%;bottom:-40%;left:0;right:0;z-index:3;pointer-events:none;
+  background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.42) 50%,transparent 58%);
+  transform:translateX(-130%);animation:sweepx 5.5s ease-in-out infinite}
+.t1 .sheen,.t2 .sheen,.t3 .sheen,.t4 .sheen{display:block}
+@keyframes sweepx{0%,62%{transform:translateX(-130%) skewX(-12deg)}100%{transform:translateX(130%) skewX(-12deg)}}
+.spark{display:none;position:absolute;inset:0;z-index:4;pointer-events:none}
+.t1 .spark,.t2 .spark,.t3 .spark,.t4 .spark{display:block}
+.spark i{position:absolute;width:4px;height:4px;border-radius:50%;background:#fff;
+  box-shadow:0 0 8px var(--tc);animation:blink 2.6s ease-in-out infinite}
+@keyframes blink{0%,100%{transform:scale(0);opacity:0}45%{transform:scale(1.4);opacity:1}}
+
+/* C 閃卡彩虹膜 */
+.holo{display:none;position:absolute;inset:0;z-index:2;pointer-events:none;mix-blend-mode:screen;
+  opacity:.42;background:repeating-linear-gradient(115deg,
+    rgba(255,0,128,.30) 0%,rgba(255,190,0,.30) 7%,rgba(0,255,170,.30) 14%,
+    rgba(0,150,255,.30) 21%,rgba(170,0,255,.30) 28%,rgba(255,0,128,.30) 35%);
+  background-size:280% 280%;animation:holo 9s ease-in-out infinite}
+.t2 .holo,.t3 .holo,.t4 .holo{display:block}
+.t4 .holo{opacity:.55;animation-duration:6s}
+@keyframes holo{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+/* 背後光暈 */
 .halo{display:none;position:absolute;inset:-60%;z-index:0;pointer-events:none}
 .t2 .halo,.t3 .halo,.t4 .halo{display:block}
 .halo::before{content:"";position:absolute;inset:0;border-radius:50%;
   background:conic-gradient(from 0deg,#A855F7,#22D3EE,#FF4D8D,#FFC53D,#A855F7);
-  filter:blur(26px);opacity:.30;animation:spin 7s linear infinite}
-.t3 .halo::before{animation-duration:5s;opacity:.34}
-.t4 .halo::before{animation-duration:3.6s;opacity:.42}
-@keyframes spin{to{transform:rotate(360deg)}}
+  filter:blur(26px);opacity:.28;animation:spin 7s linear infinite}
+.t3 .halo::before{animation-duration:5s;opacity:.32}
+.t4 .halo::before{animation-duration:3.6s;opacity:.40}
 
-.ring{display:none;position:absolute;inset:0;border-radius:22px;padding:2px;z-index:1;pointer-events:none;
+/* RGB 邊框 */
+.ring{display:none;position:absolute;inset:0;border-radius:22px;padding:2px;z-index:5;pointer-events:none;
   background:conic-gradient(from 0deg,#FF4D8D,#FFC53D,#4ADE80,#22D3EE,#A855F7,#FF4D8D);
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
   -webkit-mask-composite:xor;mask-composite:exclude;animation:hue 4s linear infinite}
 .t2 .ring,.t3 .ring,.t4 .ring{display:block}
 @keyframes hue{to{filter:hue-rotate(360deg)}}
 
-.pc{display:none;position:absolute;inset:0;overflow:hidden;z-index:1;pointer-events:none}
+/* D 粒子 + 餘燼 */
+.pc{display:none;position:absolute;inset:0;overflow:hidden;z-index:2;pointer-events:none}
 .t3 .pc,.t4 .pc{display:block}
-.pc i{position:absolute;bottom:-8px;width:5px;height:5px;border-radius:50%;
-  background:var(--tc);box-shadow:0 0 10px var(--tc);animation:rise 3.2s linear infinite}
-@keyframes rise{0%{transform:translateY(0) scale(.6);opacity:0}
-  15%{opacity:1}100%{transform:translateY(-200px) scale(1.2);opacity:0}}
+.pc i{position:absolute;bottom:-8px;border-radius:50%;background:var(--tc);
+  box-shadow:0 0 8px var(--tc);animation:rise linear infinite}
+.pc i::after{content:"";position:absolute;left:50%;top:100%;width:1px;height:16px;
+  transform:translateX(-50%);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 70%,transparent),transparent)}
+@keyframes rise{0%{transform:translateY(0) scale(.5);opacity:0}
+  12%{opacity:1}85%{opacity:.8}100%{transform:translateY(-210px) scale(1.15);opacity:0}}
+.embers{display:none;position:absolute;left:0;right:0;bottom:0;height:45%;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 130%,color-mix(in srgb,var(--tc) 42%,transparent),transparent 70%);
+  animation:emb 3.6s ease-in-out infinite}
+.t3 .embers,.t4 .embers{display:block}
+@keyframes emb{0%,100%{opacity:.45}50%{opacity:.9}}
 
-.t4{transform:translateY(-4px);box-shadow:0 18px 40px rgba(255,77,141,.28)}
+/* E 傳說：切角框 + 角標 + 放射光束 */
+.t4{border-radius:0;transform:translateY(-4px);box-shadow:0 18px 44px rgba(255,77,141,.30);
+  clip-path:polygon(20px 0,100% 0,100% calc(100% - 20px),calc(100% - 20px) 100%,0 100%,0 20px)}
+.t4 .ring{border-radius:0}
+.brk{display:none;position:absolute;inset:6px;z-index:5;pointer-events:none}
+.t4 .brk{display:block}
+.brk::before,.brk::after{content:"";position:absolute;width:26px;height:26px;border:2px solid var(--legend);
+  box-shadow:0 0 10px var(--legend)}
+.brk::before{top:0;right:0;border-left:0;border-bottom:0}
+.brk::after{bottom:0;left:0;border-right:0;border-top:0}
+.beams{display:none;position:absolute;inset:-40%;z-index:0;pointer-events:none;
+  background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.13) 0deg 2.5deg,transparent 2.5deg 17deg);
+  -webkit-mask:radial-gradient(circle,transparent 18%,#000 42%,transparent 72%);
+  mask:radial-gradient(circle,transparent 18%,#000 42%,transparent 72%);
+  animation:spin 22s linear infinite}
+.t4 .beams{display:block}
 .t4 .name{background:linear-gradient(90deg,#fff,#FFC53D,#FF4D8D,#22D3EE,#fff);
   background-size:300% 100%;-webkit-background-clip:text;background-clip:text;
   color:transparent;animation:flow 3s linear infinite}
 @keyframes flow{to{background-position:300% 0}}
-.scan{display:none;position:absolute;left:0;right:0;top:0;height:32%;z-index:3;pointer-events:none;
+.scan{display:none;position:absolute;left:0;right:0;top:0;height:32%;z-index:5;pointer-events:none;
   background:linear-gradient(180deg,transparent,rgba(255,255,255,.16),transparent);
-  animation:sweep 3.2s ease-in-out infinite}
+  animation:sweepy 3.2s ease-in-out infinite}
 .t4 .scan{display:block}
-@keyframes sweep{0%{transform:translateY(-120%)}60%,100%{transform:translateY(420%)}}
+@keyframes sweepy{0%{transform:translateY(-120%)}60%,100%{transform:translateY(420%)}}
 
-.card > *:not(.halo):not(.ring):not(.pc){position:relative;z-index:2}
-
+/* 飄字 / F 爆閃光波 / 彩帶 */
+.fx{position:absolute;inset:0;z-index:9;pointer-events:none;overflow:hidden}
 .card.hit{transform:scale(1.07)}
-.float{position:absolute;left:50%;top:40%;z-index:9;font-family:"Chakra Petch",monospace;
-  font-weight:700;font-size:clamp(34px,5vh,54px);animation:fly 1.5s ease-out forwards;
-  pointer-events:none;text-shadow:0 0 18px currentColor}
+.float{position:absolute;left:50%;top:38%;font-family:"Chakra Petch",monospace;font-weight:700;
+  font-size:clamp(34px,5vh,54px);animation:fly 1.5s ease-out forwards;text-shadow:0 0 18px currentColor}
 @keyframes fly{0%{opacity:0;transform:translate(-50%,20px) scale(.6)}
   20%{opacity:1;transform:translate(-50%,0) scale(1.15)}
   100%{opacity:0;transform:translate(-50%,-90px) scale(1)}}
+.flash{position:absolute;inset:0;z-index:8;background:#fff;opacity:0;pointer-events:none}
+.card.lv .flash{animation:bang .7s ease-out}
+@keyframes bang{0%{opacity:0}8%{opacity:.9}100%{opacity:0}}
+.wave{position:absolute;left:50%;top:50%;width:20px;height:20px;margin:-10px;border-radius:50%;
+  border:3px solid var(--tc);opacity:0;z-index:8;pointer-events:none}
+.card.lv .wave{animation:wave 1.1s ease-out}
+@keyframes wave{0%{opacity:.95;transform:scale(.4)}100%{opacity:0;transform:scale(16)}}
+.conf{position:absolute;top:48%;left:50%;width:8px;height:14px;border-radius:2px;
+  animation:conf 1.5s ease-out forwards}
+@keyframes conf{0%{opacity:1;transform:translate(0,0) rotate(0)}
+  100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rot))}}
 
-/* 升級全螢幕慶祝 */
-#levelup{position:fixed;inset:0;z-index:99;display:none;place-items:center;
-  background:radial-gradient(circle,rgba(0,0,0,.55),rgba(0,0,0,.88));backdrop-filter:blur(3px)}
-#levelup.on{display:grid;animation:fadein .3s}
-@keyframes fadein{from{opacity:0}to{opacity:1}}
-#levelup .box{text-align:center;animation:pop .6s cubic-bezier(.2,1.6,.4,1)}
-@keyframes pop{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
-#levelup .lv{font-family:"Chakra Petch",monospace;letter-spacing:10px;color:var(--gold);font-size:20px}
-#levelup .who{font-size:64px;font-weight:900;margin:8px 0}
-#levelup .to{font-size:96px;font-weight:900;
-  background:linear-gradient(90deg,#FFC53D,#FF4D8D,#22D3EE);background-size:200%;
-  -webkit-background-clip:text;background-clip:text;color:transparent;animation:flow 2s linear infinite}
-
-/* ---------- 商店 ---------- */
+/* ================= 商店 ================= */
 #shopWrap{height:100%;overflow-y:auto;padding-right:6px}
 #shopGrid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
 .item{background:linear-gradient(165deg,#141B3D,#0B1029);border:1px solid var(--line);
@@ -150,12 +219,51 @@ main{height:calc(100vh - 67px);padding:20px}
 .item .pr{font-family:"Chakra Petch",monospace;font-size:29px;font-weight:700;color:var(--gold);margin-top:6px}
 .item .st{font-size:13px;color:var(--dim);margin-top:2px}
 .item.out{filter:grayscale(1);opacity:.4}
-.item.out::after{content:"售完";position:absolute;top:12px;right:14px;font-size:18px;
-  font-weight:900;color:var(--minus)}
+.item.out::after{content:"售完";position:absolute;top:12px;right:14px;font-size:18px;font-weight:900;color:var(--minus)}
 .empty{color:var(--dim);text-align:center;padding:70px 0;font-size:20px;grid-column:1/-1}
 
-body.lowfx .halo::before,body.lowfx .pc,body.lowfx .scan,body.lowfx #stars i,
-body.lowfx .t1,body.lowfx .t4 .name,body.lowfx .ring{animation:none!important}
+/* ================= 轉盤 ================= */
+#wheelWrap{position:fixed;inset:0;z-index:120;display:none;place-items:center;
+  background:radial-gradient(circle,rgba(6,10,28,.80),rgba(0,0,0,.94));backdrop-filter:blur(5px)}
+#wheelWrap.on{display:grid;animation:fadein .35s}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.wbox{text-align:center;animation:pop .55s cubic-bezier(.2,1.55,.4,1)}
+@keyframes pop{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
+.wtag{font-family:"Chakra Petch",monospace;letter-spacing:12px;color:var(--gold);font-size:17px}
+.wwho{font-size:clamp(26px,4.2vh,44px);font-weight:900;margin:4px 0 14px}
+.wwho b{background:linear-gradient(90deg,#FFC53D,#FF4D8D,#22D3EE);background-size:200%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;animation:flow 2.4s linear infinite}
+.wstage{position:relative;width:min(56vh,56vw);height:min(56vh,56vw);margin:0 auto}
+.wheel{position:absolute;inset:0;border-radius:50%;border:6px solid rgba(255,255,255,.14);
+  box-shadow:0 0 50px rgba(168,85,247,.4),inset 0 0 40px rgba(0,0,0,.55);
+  transition:transform 4.6s cubic-bezier(.12,.82,.16,1);cursor:pointer}
+.wlab{position:absolute;inset:0;display:flex;justify-content:center;pointer-events:none}
+.wlab span{margin-top:7%;font-size:clamp(13px,1.9vh,20px);font-weight:900;color:#0B0E22;
+  text-shadow:0 1px 2px rgba(255,255,255,.45);max-width:6.5em;line-height:1.25;text-align:center}
+.wlab span i{display:block;font-size:1.5em;font-style:normal}
+.wptr{position:absolute;top:-16px;left:50%;transform:translateX(-50%);z-index:5;
+  width:0;height:0;border-left:19px solid transparent;border-right:19px solid transparent;
+  border-top:34px solid var(--gold);filter:drop-shadow(0 3px 8px rgba(0,0,0,.7))}
+.whub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4;
+  width:20%;height:20%;border-radius:50%;display:grid;place-items:center;cursor:pointer;
+  background:linear-gradient(160deg,#1B2350,#0B1029);border:3px solid var(--gold);
+  font-weight:900;font-size:clamp(15px,2.2vh,24px);color:var(--gold);
+  box-shadow:0 0 26px rgba(255,197,61,.5);animation:hub 1.4s ease-in-out infinite}
+@keyframes hub{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.09)}}
+.whub.off{animation:none;cursor:default;opacity:.65}
+.wres{min-height:64px;margin-top:18px;font-size:clamp(20px,3.2vh,34px);font-weight:900;opacity:0;transition:.4s}
+.wres.on{opacity:1}
+.wres b{color:var(--gold)}
+.wbtn{margin-top:6px;padding:14px 46px;border:0;border-radius:16px;font-size:20px;font-weight:900;
+  font-family:inherit;background:linear-gradient(135deg,#FFC53D,#FF8A3D);color:#241500;cursor:pointer;
+  opacity:0;pointer-events:none;transition:.3s}
+.wbtn.on{opacity:1;pointer-events:auto}
+
+/* 低效能 */
+body.lowfx .halo::before,body.lowfx .pc,body.lowfx .scan,body.lowfx #stars i,body.lowfx .t1,
+body.lowfx .t4 .name,body.lowfx .ring,body.lowfx .holo,body.lowfx .sheen,body.lowfx .spark,
+body.lowfx .beams,body.lowfx .orbit,body.lowfx .embers,body.lowfx .avring{animation:none!important}
+body.lowfx .holo,body.lowfx .sheen,body.lowfx .beams,body.lowfx .pc{display:none!important}
 body.lowfx .t4 .name{-webkit-text-fill-color:var(--ink);color:var(--ink)}
 body.lowfx .ring{background:linear-gradient(135deg,#FF4D8D,#22D3EE)}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important}}
@@ -181,25 +289,33 @@ body.lowfx .ring{background:linear-gradient(135deg,#FF4D8D,#22D3EE)}
   <section class="page" id="p-shop"><div id="shopWrap"><div id="shopGrid"></div></div></section>
 </main>
 
-<div id="levelup"><div class="box">
-  <div class="lv">LEVEL UP</div>
-  <div class="who" id="luWho"></div>
-  <div class="to" id="luTo"></div>
+<div id="wheelWrap"><div class="wbox">
+  <div class="wtag">LEVEL UP</div>
+  <div class="wwho"><span id="wName"></span> 升級到 <b id="wTier"></b></div>
+  <div class="wstage">
+    <div class="wptr"></div>
+    <div class="wheel" id="wheel"></div>
+    <div class="whub" id="whub">轉</div>
+  </div>
+  <div class="wres" id="wRes"></div>
+  <button class="wbtn" id="wTake">收下</button>
 </div></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, onSnapshot, query, orderBy }
+import { getFirestore, collection, doc, onSnapshot, updateDoc, addDoc,
+  query, orderBy, limit, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { firebaseConfig, tierOf, nextTier, avatarHTML, esc } from "./config.js";
+import { firebaseConfig, tierOf, nextTier, avatarHTML, esc, DEFAULT_WHEEL } from "./config.js";
 
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
+const $ = id => document.getElementById(id);
 
 /* 星星 */
-const sw = document.getElementById("stars");
-for (let i = 0; i < 90; i++) {
+const sw = $("stars");
+for (let i = 0; i < 90; i++){
   const s = document.createElement("i");
   s.style.left = Math.random()*100 + "%";
   s.style.top  = Math.random()*100 + "%";
@@ -213,133 +329,180 @@ document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
   document.querySelectorAll(".tab").forEach(x => x.classList.remove("on"));
   document.querySelectorAll(".page").forEach(x => x.classList.remove("on"));
   t.classList.add("on");
-  document.getElementById("p-" + t.dataset.p).classList.add("on");
+  $("p-" + t.dataset.p).classList.add("on");
 });
 
 /* 開關 */
-const btnFx = document.getElementById("btnFx"), btnSnd = document.getElementById("btnSnd");
 let lowfx = localStorage.getItem("lowfx") === "1";
 let snd   = localStorage.getItem("snd") !== "0";
 function syncToggles(){
   document.body.classList.toggle("lowfx", lowfx);
-  btnFx.textContent = lowfx ? "特效 OFF" : "特效 ON";
-  btnFx.classList.toggle("on", !lowfx);
-  btnSnd.textContent = snd ? "音效 ON" : "音效 OFF";
-  btnSnd.classList.toggle("on", snd);
+  $("btnFx").textContent = lowfx ? "特效 OFF" : "特效 ON";
+  $("btnFx").classList.toggle("on", !lowfx);
+  $("btnSnd").textContent = snd ? "音效 ON" : "音效 OFF";
+  $("btnSnd").classList.toggle("on", snd);
 }
-btnFx.onclick  = () => { lowfx = !lowfx; localStorage.setItem("lowfx", lowfx?"1":"0"); syncToggles(); };
-btnSnd.onclick = () => { snd = !snd; localStorage.setItem("snd", snd?"1":"0"); syncToggles(); };
+$("btnFx").onclick  = () => { lowfx = !lowfx; localStorage.setItem("lowfx", lowfx?"1":"0"); syncToggles(); };
+$("btnSnd").onclick = () => { snd = !snd; localStorage.setItem("snd", snd?"1":"0"); syncToggles(); };
 syncToggles();
 
 /* 音效 */
 let ac = null;
-function beep(kind){
+function tone(seq, type = "triangle", vol = .16){
   if (!snd) return;
   try{
     ac = ac || new (window.AudioContext || window.webkitAudioContext)();
-    const seq = kind === "up" ? [660,880,1320] : kind === "down" ? [420,260]
-              : [523,659,784,1047,1319];
-    seq.forEach((f,i) => {
+    seq.forEach(([f, at, dur]) => {
       const o = ac.createOscillator(), g = ac.createGain();
-      o.type = "triangle"; o.frequency.value = f;
-      const t = ac.currentTime + i*0.09;
+      o.type = type; o.frequency.value = f;
+      const t = ac.currentTime + at;
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.16, t+0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t+0.24);
-      o.connect(g).connect(ac.destination); o.start(t); o.stop(t+0.26);
+      g.gain.exponentialRampToValueAtTime(vol, t + .02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(ac.destination); o.start(t); o.stop(t + dur + .02);
     });
   }catch(e){}
 }
+const sfxUp   = () => tone([[660,0,.22],[880,.09,.22],[1320,.18,.26]]);
+const sfxDown = () => tone([[420,0,.2],[260,.09,.26]]);
+const sfxLv   = () => tone([[523,0,.3],[659,.1,.3],[784,.2,.3],[1047,.3,.36],[1319,.42,.5]]);
+const sfxTick = () => tone([[1400,0,.03]], "square", .05);
+const sfxWin  = () => tone([[784,0,.25],[1047,.12,.25],[1319,.24,.3],[1568,.36,.55]]);
 
-/* ---------- 學生榜 ---------- */
-const grid = document.getElementById("grid");
-const prev = {};          // { id: {wallet, total} }
-let first = true;
+/* ================= 學生榜（差異更新，動畫不會被重置） ================= */
+const grid = $("grid");
+const nodes = new Map();
+const prev  = {};
+const byId  = {};
+let signature = "", firstPaint = true;
 
-function cardHTML(s){
+function shell(s){
+  const parts = Array.from({length:10}, () => {
+    const sz = (2 + Math.random()*4).toFixed(1);
+    return `<i style="left:${(Math.random()*94+3).toFixed(1)}%;width:${sz}px;height:${sz}px;`
+         + `animation-duration:${(2.2+Math.random()*2.6).toFixed(2)}s;`
+         + `animation-delay:${(Math.random()*3.4).toFixed(2)}s;`
+         + `opacity:${(.45+Math.random()*.55).toFixed(2)}"></i>`;
+  }).join("");
+  const sparks = Array.from({length:3}, () =>
+    `<i style="left:${(Math.random()*80+10).toFixed(0)}%;top:${(Math.random()*70+12).toFixed(0)}%;`
+    + `animation-delay:${(Math.random()*2.6).toFixed(2)}s"></i>`).join("");
+  const el = document.createElement("div");
+  el.className = "card t0";
+  el.dataset.id = s.id;
+  el.innerHTML = `
+    <div class="beams"></div><div class="halo"></div><div class="weave"></div>
+    <div class="holo"></div><div class="embers"></div>
+    <div class="pc">${parts}</div><div class="spark">${sparks}</div>
+    <div class="sheen"></div><div class="scan"></div>
+    <div class="ring"></div><div class="brk"></div>
+    <div class="body">
+      <div class="avwrap"><div class="avring"></div>
+        <div class="orbit"><i></i><i></i><i></i></div>
+        <div class="avslot">${avatarHTML(s.avatar)}</div>
+      </div>
+      <div class="name"></div><div class="pts"></div>
+      <div class="meta"></div><div class="goal"></div>
+    </div>
+    <div class="bar"><i></i></div>
+    <div class="flash"></div><div class="wave"></div><div class="fx"></div>`;
+  return el;
+}
+
+function paint(el, s){
   const total = s.total || 0, wallet = s.wallet || 0;
   const t = tierOf(total), nx = nextTier(total);
   let prog = 100, goal = "已達最高等級";
-  if (nx) {
+  if (nx){
     prog = Math.round((total - t.min) / (nx.min - t.min) * 100);
     goal = `離 ${nx.name} 還差 ${nx.min - total} 分`;
   }
-  const parts = Array.from({length:6}, (_,i) =>
-    `<i style="left:${8+i*15}%;animation-delay:${(i*0.5).toFixed(1)}s"></i>`).join("");
-  return `<div class="card t${t.key}" data-id="${s.id}">
-    <div class="halo"></div><div class="ring"></div>
-    <div class="pc">${parts}</div><div class="scan"></div>
-    ${avatarHTML(s.avatar)}
-    <div class="name">${esc(s.name)}</div>
-    <div class="pts">${wallet}</div>
-    <div class="meta">${t.name} <b>· 累積 ${total}</b></div>
-    <div class="goal">${goal}</div>
-    <div class="bar"><i style="width:${Math.max(0,Math.min(100,prog))}%"></i></div>
-  </div>`;
+  for (let k = 0; k < 5; k++) el.classList.remove("t" + k);
+  el.classList.add("t" + t.key);
+  el.querySelector(".name").textContent = s.name;
+  el.querySelector(".pts").textContent  = wallet;
+  el.querySelector(".meta").innerHTML   = `${t.name} <b>· 累積 ${total}</b>`;
+  el.querySelector(".goal").textContent = goal;
+  el.querySelector(".bar i").style.width = Math.max(0, Math.min(100, prog)) + "%";
+  const slot = el.querySelector(".avslot"), want = avatarHTML(s.avatar);
+  if (slot.innerHTML !== want) slot.innerHTML = want;
 }
 
 function popFloat(id, diff){
-  const el = grid.querySelector(`.card[data-id="${id}"]`);
-  if (!el) return;
+  const el = nodes.get(id); if (!el) return;
   const f = document.createElement("div");
   f.className = "float";
   f.textContent = (diff > 0 ? "+" : "") + diff;
   f.style.color = diff > 0 ? "var(--plus)" : "var(--minus)";
-  f.style.transform = "translateX(-50%)";
-  el.appendChild(f);
+  el.querySelector(".fx").appendChild(f);
   el.classList.add("hit");
   setTimeout(() => el.classList.remove("hit"), 320);
   setTimeout(() => f.remove(), 1600);
-  beep(diff > 0 ? "up" : "down");
+  diff > 0 ? sfxUp() : sfxDown();
 }
 
-const lu = document.getElementById("levelup");
-function celebrate(name, tierName){
-  document.getElementById("luWho").textContent = name;
-  document.getElementById("luTo").textContent  = tierName;
-  lu.classList.add("on");
-  beep("lv");
-  setTimeout(() => lu.classList.remove("on"), 3200);
+function burst(id){
+  const el = nodes.get(id); if (!el) return;
+  el.classList.remove("lv"); void el.offsetWidth; el.classList.add("lv");
+  if (!lowfx){
+    const fx = el.querySelector(".fx");
+    const cols = ["#FFC53D","#FF4D8D","#22D3EE","#A855F7","#4ADE80","#fff"];
+    for (let i = 0; i < 16; i++){
+      const c = document.createElement("div");
+      c.className = "conf";
+      const a = Math.random()*Math.PI*2, d = 60 + Math.random()*110;
+      c.style.setProperty("--dx", (Math.cos(a)*d).toFixed(0) + "px");
+      c.style.setProperty("--dy", (Math.sin(a)*d + 40).toFixed(0) + "px");
+      c.style.setProperty("--rot", (Math.random()*900 - 450).toFixed(0) + "deg");
+      c.style.background = cols[i % cols.length];
+      c.style.animationDelay = (Math.random()*.12).toFixed(2) + "s";
+      fx.appendChild(c);
+      setTimeout(() => c.remove(), 1800);
+    }
+  }
+  sfxLv();
+  setTimeout(() => el.classList.remove("lv"), 1300);
 }
 
 function startBoard(){
 onSnapshot(collection(db, "students"), snap => {
   const list = snap.docs.map(d => ({ id: d.id, ...d.data() }))
     .sort((a,b) => String(a.name).localeCompare(String(b.name), "zh-Hant"));
+  list.forEach(s => byId[s.id] = s);
+
   if (!list.length){
     grid.innerHTML = `<div class="empty">還沒有學生，去後台的「設定」新增</div>`;
-    return;
+    nodes.clear(); signature = ""; return;
   }
-  grid.innerHTML = list.map(s => cardHTML(s)).join("");
-
+  const sig = list.map(s => s.id).join("|");
+  if (sig !== signature){
+    grid.innerHTML = "";
+    nodes.clear();
+    list.forEach(s => { const el = shell(s); grid.appendChild(el); nodes.set(s.id, el); });
+    signature = sig;
+  }
   list.forEach(s => {
-    const p = prev[s.id];
-    const total = s.total || 0, wallet = s.wallet || 0;
-    if (!first && p) {
+    const el = nodes.get(s.id); if (!el) return;
+    paint(el, s);
+    const p = prev[s.id], total = s.total || 0, wallet = s.wallet || 0;
+    if (!firstPaint && p){
       if (p.wallet !== wallet) popFloat(s.id, wallet - p.wallet);
-      if (tierOf(total).key > tierOf(p.total).key) {
-        setTimeout(() => celebrate(s.name, tierOf(total).name), 700);
-      }
+      if (tierOf(total).key > tierOf(p.total).key) burst(s.id);
     }
     prev[s.id] = { total, wallet };
   });
-  first = false;
-}, err => {
-  grid.innerHTML = `<div class="empty">讀取失敗：${esc(err.message)}</div>`;
-});
+  firstPaint = false;
+}, err => { grid.innerHTML = `<div class="empty">讀取失敗：${esc(err.message)}</div>`; });
 }
 
-/* ---------- 商店 ---------- */
-const shopGrid = document.getElementById("shopGrid");
+/* ================= 商店 ================= */
+const shopGrid = $("shopGrid");
 function startShop(){
 onSnapshot(collection(db, "items"), snap => {
   const list = snap.docs.map(d => ({ id: d.id, ...d.data() }))
     .filter(i => i.active !== false)
     .sort((a,b) => (a.price||0) - (b.price||0));
-  if (!list.length){
-    shopGrid.innerHTML = `<div class="empty">商店還沒上架東西</div>`;
-    return;
-  }
+  if (!list.length){ shopGrid.innerHTML = `<div class="empty">商店還沒上架東西</div>`; return; }
   shopGrid.innerHTML = list.map(i => {
     const isAv = i.type === "avatar";
     const out  = !isAv && (i.stock || 0) <= 0;
@@ -353,17 +516,123 @@ onSnapshot(collection(db, "items"), snap => {
       <div class="st">${isAv ? "換了就永久是你的" : `剩下 ${i.stock || 0} 個`}</div>
     </div>`;
   }).join("");
-}, err => {
-  shopGrid.innerHTML = `<div class="empty">讀取失敗：${esc(err.message)}</div>`;
-});
+}, err => { shopGrid.innerHTML = `<div class="empty">讀取失敗：${esc(err.message)}</div>`; });
 }
 
-/* ---------- 先登入，成功之後才開始讀資料 ---------- */
+/* ================= 轉盤 ================= */
+const SEG_COLORS = ["#FFC53D","#A855F7","#22D3EE","#FF4D8D","#4ADE80","#FB923C","#60A5FA","#F472B6"];
+let prizes = DEFAULT_WHEEL.slice();
+let queue = [], current = null, spinning = false, landed = null;
+
+function buildWheel(){
+  const n = prizes.length, per = 360 / n;
+  const stops = prizes.map((p,i) =>
+    `${SEG_COLORS[i % SEG_COLORS.length]} ${(i*per).toFixed(3)}deg ${((i+1)*per).toFixed(3)}deg`).join(",");
+  const labs = prizes.map((p,i) =>
+    `<div class="wlab" style="transform:rotate(${(i*per + per/2).toFixed(3)}deg)">
+       <span><i>${p.emoji || "🎁"}</i>${esc(p.label)}</span></div>`).join("");
+  const w = $("wheel");
+  w.style.transition = "none";
+  w.style.transform  = "rotate(0deg)";
+  w.style.background = `conic-gradient(from 0deg,${stops})`;
+  w.innerHTML = labs;
+  void w.offsetWidth;
+}
+
+function pickIndex(){
+  const total = prizes.reduce((a,p) => a + (Number(p.weight) > 0 ? Number(p.weight) : 1), 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < prizes.length; i++){
+    r -= (Number(prizes[i].weight) > 0 ? Number(prizes[i].weight) : 1);
+    if (r <= 0) return i;
+  }
+  return prizes.length - 1;
+}
+
+function showSpin(sp){
+  current = sp; spinning = false; landed = null;
+  $("wName").textContent = sp.studentName;
+  $("wTier").textContent = sp.tierName;
+  $("wRes").classList.remove("on"); $("wRes").innerHTML = "";
+  $("wTake").classList.remove("on");
+  $("whub").classList.remove("off"); $("whub").textContent = "轉";
+  buildWheel();
+  $("wheelWrap").classList.add("on");
+}
+
+function doSpin(){
+  if (spinning || !current) return;
+  spinning = true;
+  $("whub").classList.add("off"); $("whub").textContent = "…";
+  const idx = pickIndex();
+  const n = prizes.length, per = 360 / n;
+  const centre = idx * per + per / 2;
+  const jitter = (Math.random() - .5) * per * .6;
+  const target = 360 * 6 + (360 - centre - jitter);
+  const w = $("wheel");
+  w.style.transition = "transform 4.6s cubic-bezier(.12,.82,.16,1)";
+  w.style.transform  = `rotate(${target.toFixed(2)}deg)`;
+  let ticks = 0;
+  const iv = setInterval(() => { sfxTick(); if (++ticks > 26) clearInterval(iv); }, 150);
+  landed = prizes[idx];
+  setTimeout(() => {
+    clearInterval(iv);
+    const bonus = Number(landed.points) > 0 ? `　<b>+${landed.points} 點</b>` : "";
+    $("wRes").innerHTML = `${landed.emoji || "🎁"} 抽中 <b>${esc(landed.label)}</b>${bonus}`;
+    $("wRes").classList.add("on");
+    $("wTake").classList.add("on");
+    sfxWin();
+  }, 4700);
+}
+$("wheel").onclick = doSpin;
+$("whub").onclick  = doSpin;
+
+$("wTake").onclick = async () => {
+  if (!current || !landed) return;
+  const sp = current, pz = landed;
+  $("wheelWrap").classList.remove("on");
+  current = null; landed = null; spinning = false;
+  try{
+    await updateDoc(doc(db, "spins", sp.id), {
+      status: "done", prize: pz.label, prizePoints: Number(pz.points) || 0, doneAt: serverTimestamp()
+    });
+    const pts = Number(pz.points) || 0;
+    if (pts > 0){
+      const s = byId[sp.studentId];
+      if (s) await updateDoc(doc(db, "students", sp.studentId), { wallet: (s.wallet || 0) + pts });
+    }
+    await addDoc(collection(db, "logs"), {
+      studentId: sp.studentId, studentName: sp.studentName, delta: pts,
+      reason: `轉盤（${sp.tierName}）：${pz.label}`, kind: "spin", at: serverTimestamp()
+    });
+  }catch(e){ console.error(e); }
+  setTimeout(next, 600);
+};
+
+function next(){
+  if (current || !queue.length) return;
+  showSpin(queue[0]);
+}
+
+function startSpins(){
+  onSnapshot(doc(db, "config", "wheel"), d => {
+    const v = d.exists() ? d.data().prizes : null;
+    if (Array.isArray(v) && v.length) prizes = v;
+    if (current && !spinning) buildWheel();
+  }, e => console.warn(e));
+
+  onSnapshot(query(collection(db, "spins"), orderBy("at", "asc"), limit(20)), snap => {
+    queue = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(s => s.status === "pending");
+    next();
+  }, e => console.warn(e));
+}
+
+/* ================= 啟動 ================= */
 signInAnonymously(getAuth(app))
-  .then(() => { startBoard(); startShop(); })
+  .then(() => { startBoard(); startShop(); startSpins(); })
   .catch(e => {
     grid.innerHTML = `<div class="empty">登入失敗：${esc(e.code)}<br>
-      <span style="font-size:15px">到 Firebase Console → Authentication → Sign-in method → 啟用「匿名」</span></div>`;
+      <span style="font-size:15px">Firebase Console → Authentication → 啟用「匿名」</span></div>`;
   });
 </script>
 </body>
