@@ -15,10 +15,10 @@ export const ADMIN_PIN = "072929";
 // 等級門檻（依累積分，只升不降）
 export const TIERS = [
   { key: 0, min: 0,   name: "見習", color: "#8A94A6" },
-  { key: 1, min: 30,  name: "金輝", color: "#FFC53D" },
-  { key: 2, min: 50,  name: "紫耀", color: "#A855F7" },
-  { key: 3, min: 80,  name: "星焰", color: "#22D3EE" },
-  { key: 4, min: 120, name: "傳說", color: "#FF4D8D" }
+  { key: 1, min: 50,  name: "金輝", color: "#FFC53D" },
+  { key: 2, min: 150, name: "紫耀", color: "#A855F7" },
+  { key: 3, min: 250, name: "星焰", color: "#22D3EE" },
+  { key: 4, min: 450, name: "傳說", color: "#FF4D8D" }
 ];
 
 export function tierOf(total) {
@@ -48,6 +48,16 @@ export const DEFAULT_REASONS = {
     { label: "沒收拾",   points: 1 }
   ]
 };
+
+// 轉盤預設獎品（weight = 扇形寬度 = 中獎機率；points > 0 會自動加進餘額）
+export const DEFAULT_WHEEL = [
+  { label: "乖乖一包",     emoji: "🍪", weight: 5, points: 0  },
+  { label: "養樂多",       emoji: "🥤", weight: 5, points: 0  },
+  { label: "加 10 點",     emoji: "💰", weight: 4, points: 10 },
+  { label: "免寫作業一次", emoji: "📝", weight: 2, points: 0  },
+  { label: "加 30 點",     emoji: "💎", weight: 2, points: 30 },
+  { label: "自選大零食",   emoji: "🎁", weight: 1, points: 0  }
+];
 
 // 頭像選單
 export const AVATARS = Array.from("🦊🐼🐧🐯🦁🐸🐵🐨🐰🐱🐶🐹🐢🦉🐙🦄🐷🐔🦖🐳🐝🦋🐬🦕");
