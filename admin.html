@@ -2,637 +2,580 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>星塵榜</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>星塵榜 · 後台</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#070B1C; --line:rgba(255,255,255,.10);
-  --ink:#EEF2FF; --dim:#8C97B8;
-  --stone:#8A94A6; --gold:#FFC53D; --violet:#A855F7; --cyan:#22D3EE; --legend:#FF4D8D;
-  --plus:#4ADE80; --minus:#FB7185;
+  --bg:#070B1C; --card:#111838; --line:rgba(255,255,255,.11);
+  --ink:#EEF2FF; --dim:#8C97B8; --gold:#FFC53D;
+  --plus:#4ADE80; --minus:#FB7185; --violet:#A855F7;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{
-  background:
-    radial-gradient(1200px 700px at 15% -10%,#1B2455 0%,transparent 60%),
-    radial-gradient(900px 600px at 90% 110%,#2A1240 0%,transparent 60%),
-    var(--bg);
-  color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;
-  overflow:hidden;user-select:none;-webkit-tap-highlight-color:transparent;
-}
-#stars{position:fixed;inset:0;pointer-events:none;opacity:.55}
-#stars i{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;
-  animation:twinkle 4s ease-in-out infinite}
-@keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;
+  padding-bottom:96px;min-height:100vh}
+input,select,button,textarea{font-family:inherit;font-size:16px}
+.num{font-family:"Chakra Petch",monospace;font-weight:700}
 
-header{display:flex;align-items:center;gap:18px;padding:12px 24px;
-  border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.04),transparent)}
-.brand{display:flex;align-items:baseline;gap:12px}
-.brand h1{font-size:26px;font-weight:900;letter-spacing:3px}
-.brand small{font-family:"Chakra Petch",monospace;color:var(--dim);letter-spacing:3px;font-size:12px}
-nav{display:flex;gap:10px;margin-left:auto}
-.tab{font-size:20px;font-weight:900;padding:11px 30px;border-radius:14px;cursor:pointer;
-  background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--dim);transition:.18s}
-.tab.on{background:linear-gradient(135deg,#FFC53D,#FF8A3D);color:#241500;border-color:transparent;
-  box-shadow:0 6px 24px rgba(255,180,60,.35)}
-.mini{font-size:13px;padding:9px 12px;border-radius:10px;background:rgba(255,255,255,.05);
-  border:1px solid var(--line);color:var(--dim);cursor:pointer;font-family:"Chakra Petch",monospace}
-.mini.on{color:var(--gold);border-color:rgba(255,197,61,.5)}
-.tools{display:flex;gap:8px;margin-left:14px}
+/* 鎖 */
+#lock{position:fixed;inset:0;z-index:200;background:var(--bg);display:grid;place-items:center;padding:24px}
+#lock .in{width:100%;max-width:300px;text-align:center}
+#lock h2{font-size:22px;font-weight:900;letter-spacing:3px;margin-bottom:6px}
+#lock p{color:var(--dim);font-size:13px;margin-bottom:22px}
+#pin{width:100%;padding:16px;text-align:center;font-size:26px;letter-spacing:10px;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;color:var(--ink)}
+#lock button{width:100%;margin-top:14px;padding:15px;border:0;border-radius:14px;font-weight:900;
+  font-size:17px;background:linear-gradient(135deg,#FFC53D,#FF8A3D);color:#241500}
+#lockErr{color:var(--minus);font-size:14px;margin-top:12px;min-height:20px}
 
-main{height:calc(100vh - 67px);padding:20px}
-.page{display:none;height:100%}
+header{position:sticky;top:0;z-index:50;background:rgba(7,11,28,.94);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;gap:10px}
+header h1{font-size:18px;font-weight:900;letter-spacing:2px}
+header .st{margin-left:auto;font-size:11px;color:var(--dim);font-family:"Chakra Petch",monospace}
+
+.page{display:none;padding:16px}
 .page.on{display:block}
+h3{font-size:14px;letter-spacing:2px;color:var(--dim);margin:20px 0 10px;font-weight:700}
+h3:first-child{margin-top:0}
 
-/* ================= 卡片 ================= */
-#grid{height:100%;display:grid;gap:14px;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));grid-auto-rows:1fr}
-.card{position:relative;border-radius:22px;overflow:hidden;
-  background:linear-gradient(165deg,#141B3D,#0B1029);
-  border:2px solid rgba(255,255,255,.10);min-height:145px;
-  transition:transform .3s cubic-bezier(.2,1.4,.4,1),box-shadow .4s}
-.body{position:relative;z-index:6;height:100%;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 10px 16px}
-.name{font-size:clamp(16px,2.2vh,24px);font-weight:900;letter-spacing:1px;white-space:nowrap;margin-top:4px}
-.pts{font-family:"Chakra Petch",monospace;font-weight:700;font-size:clamp(28px,4.6vh,50px);
-  line-height:1.05;color:var(--tc);text-shadow:0 0 22px color-mix(in srgb,var(--tc) 60%,transparent)}
-.meta{font-size:12px;letter-spacing:2px;color:var(--tc);opacity:.95;font-weight:700}
-.meta b{color:var(--dim);font-weight:500;letter-spacing:0}
-.goal{font-size:11px;color:var(--dim);margin-top:5px}
-.bar{position:absolute;left:0;bottom:0;width:100%;height:4px;background:rgba(255,255,255,.07);z-index:6}
-.bar i{display:block;height:100%;background:var(--tc);box-shadow:0 0 12px var(--tc);transition:width .6s}
+.row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);
+  border-radius:16px;padding:13px 14px;margin-bottom:9px}
+.row .av{font-size:30px;width:38px;text-align:center;flex:0 0 auto}
+.row .av img{width:36px;height:36px;border-radius:50%;object-fit:cover}
+.row .info{flex:1;min-width:0}
+.row .nm{font-size:17px;font-weight:900}
+.row .sub{font-size:12px;color:var(--dim);margin-top:2px}
+.row .big{font-size:26px;color:var(--gold)}
+.row.tap:active{transform:scale(.985);opacity:.85}
 
-/* G 頭像底座 */
-.avwrap{position:relative;width:clamp(56px,7.2vh,88px);height:clamp(56px,7.2vh,88px);
-  display:grid;place-items:center;--r:calc(clamp(56px,7.2vh,88px) / 2 + 7px)}
-.avring{position:absolute;inset:0;border-radius:50%;
-  border:2px solid color-mix(in srgb,var(--tc) 55%,transparent);
-  background:radial-gradient(circle,color-mix(in srgb,var(--tc) 16%,transparent),transparent 70%)}
-.t1 .avring,.t2 .avring,.t3 .avring,.t4 .avring{
-  box-shadow:0 0 16px color-mix(in srgb,var(--tc) 45%,transparent),
-             inset 0 0 12px color-mix(in srgb,var(--tc) 30%,transparent);
-  animation:ringpulse 2.8s ease-in-out infinite}
-@keyframes ringpulse{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.06);opacity:1}}
-.av-emo{font-size:clamp(28px,3.9vh,48px);line-height:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.6))}
-.av-img{width:78%;height:78%;border-radius:50%;object-fit:cover}
+.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:900;background:rgba(255,255,255,.07);
+  color:var(--ink);border:1px solid var(--line)}
+.btn.gold{background:linear-gradient(135deg,#FFC53D,#FF8A3D);color:#241500;border:0}
+.btn.red{background:rgba(251,113,133,.16);color:var(--minus);border-color:rgba(251,113,133,.35)}
+.btn.sm{padding:9px 12px;font-size:13px;border-radius:10px}
+.btn:disabled{opacity:.32}
 
-/* E 星軌（傳說） */
-.orbit{display:none;position:absolute;inset:0;animation:spin 6s linear infinite}
-.t4 .orbit{display:block}
-.orbit i{position:absolute;top:50%;left:50%;width:7px;height:7px;margin:-3.5px;border-radius:50%;
-  background:#fff;box-shadow:0 0 10px #fff,0 0 20px var(--legend)}
-.orbit i:nth-child(1){transform:rotate(0deg) translateY(calc(var(--r) * -1))}
-.orbit i:nth-child(2){transform:rotate(120deg) translateY(calc(var(--r) * -1))}
-.orbit i:nth-child(3){transform:rotate(240deg) translateY(calc(var(--r) * -1))}
-@keyframes spin{to{transform:rotate(360deg)}}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:11px}
+.field label{font-size:12px;color:var(--dim);letter-spacing:1px}
+.field input,.field select,.field textarea{padding:13px;background:var(--card);
+  border:1px solid var(--line);border-radius:12px;color:var(--ink);width:100%}
+textarea{min-height:120px;line-height:1.7;font-family:"Chakra Petch",monospace}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:11px}
 
-/* 顏色 */
-.t0{--tc:var(--stone)}
-.t1{--tc:var(--gold);border-color:rgba(255,197,61,.55);animation:breathe 3.4s ease-in-out infinite}
-@keyframes breathe{
-  0%,100%{box-shadow:0 0 0 1px rgba(255,197,61,.18),0 0 30px rgba(255,197,61,.10) inset}
-  50%{box-shadow:0 0 0 1px rgba(255,197,61,.5),0 0 50px rgba(255,197,61,.28) inset,0 0 26px rgba(255,197,61,.22)}}
-.t2{--tc:var(--violet);border-color:transparent}
-.t3{--tc:var(--cyan);border-color:transparent}
-.t4{--tc:var(--legend);border-color:transparent}
+.avpick{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;background:var(--card);
+  border:1px solid var(--line);border-radius:12px;padding:8px}
+.avpick span{font-size:22px;text-align:center;padding:6px 0;border-radius:8px;cursor:pointer}
+.avpick span.on{background:rgba(255,197,61,.22);outline:1px solid var(--gold)}
 
-/* A 見習織紋 */
-.weave{display:none;position:absolute;inset:0;z-index:1;pointer-events:none;
-  background:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 2px,transparent 2px 9px)}
-.t0 .weave{display:block}
-.t0 .pts{opacity:.85}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:60;display:grid;grid-template-columns:repeat(3,1fr);
+  background:rgba(10,15,38,.97);backdrop-filter:blur(10px);border-top:1px solid var(--line);
+  padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
+nav div{text-align:center;padding:10px 0;border-radius:12px;font-size:13px;font-weight:900;color:var(--dim)}
+nav div.on{color:var(--gold);background:rgba(255,197,61,.12)}
+nav div i{display:block;font-size:20px;font-style:normal;margin-bottom:2px}
 
-/* B 金屬掃光 + 碎閃 */
-.sheen{display:none;position:absolute;top:-40%;bottom:-40%;left:0;right:0;z-index:3;pointer-events:none;
-  background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.42) 50%,transparent 58%);
-  transform:translateX(-130%);animation:sweepx 5.5s ease-in-out infinite}
-.t1 .sheen,.t2 .sheen,.t3 .sheen,.t4 .sheen{display:block}
-@keyframes sweepx{0%,62%{transform:translateX(-130%) skewX(-12deg)}100%{transform:translateX(130%) skewX(-12deg)}}
-.spark{display:none;position:absolute;inset:0;z-index:4;pointer-events:none}
-.t1 .spark,.t2 .spark,.t3 .spark,.t4 .spark{display:block}
-.spark i{position:absolute;width:4px;height:4px;border-radius:50%;background:#fff;
-  box-shadow:0 0 8px var(--tc);animation:blink 2.6s ease-in-out infinite}
-@keyframes blink{0%,100%{transform:scale(0);opacity:0}45%{transform:scale(1.4);opacity:1}}
+/* 加減分面板 */
+#sheet{position:fixed;inset:0;z-index:100;display:none;align-items:flex-end;background:rgba(0,0,0,.6)}
+#sheet.on{display:flex}
+#sheet .box{width:100%;background:#0D1330;border-radius:22px 22px 0 0;border-top:1px solid var(--line);
+  padding:18px 16px calc(20px + env(safe-area-inset-bottom));max-height:88vh;overflow-y:auto;
+  animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(100%)}}
+#sheet .who{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+#sheet .who .av{font-size:38px}
+#sheet .who .av img{width:44px;height:44px;border-radius:50%;object-fit:cover}
+#sheet .who .nm{font-size:22px;font-weight:900}
+#sheet .who .sub{font-size:13px;color:var(--dim)}
+.reasons{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:8px}
+.rb{padding:15px 10px;border-radius:14px;border:1px solid;font-weight:900;font-size:15px;text-align:center}
+.rb.p{background:rgba(74,222,128,.13);border-color:rgba(74,222,128,.4);color:var(--plus)}
+.rb.m{background:rgba(251,113,133,.13);border-color:rgba(251,113,133,.4);color:var(--minus)}
+.rb b{display:block;font-family:"Chakra Petch",monospace;font-size:19px;margin-top:2px}
+.rb:active{transform:scale(.96)}
 
-/* C 閃卡彩虹膜 */
-.holo{display:none;position:absolute;inset:0;z-index:2;pointer-events:none;mix-blend-mode:screen;
-  opacity:.42;background:repeating-linear-gradient(115deg,
-    rgba(255,0,128,.30) 0%,rgba(255,190,0,.30) 7%,rgba(0,255,170,.30) 14%,
-    rgba(0,150,255,.30) 21%,rgba(170,0,255,.30) 28%,rgba(255,0,128,.30) 35%);
-  background-size:280% 280%;animation:holo 9s ease-in-out infinite}
-.t2 .holo,.t3 .holo,.t4 .holo{display:block}
-.t4 .holo{opacity:.55;animation-duration:6s}
-@keyframes holo{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.buygrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.buy{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;text-align:center}
+.buy .ic{font-size:34px}
+.buy .ic img{width:46px;height:46px;border-radius:50%;object-fit:cover}
+.buy .n{font-weight:900;margin-top:4px;font-size:15px}
+.buy .p{color:var(--gold);font-family:"Chakra Petch",monospace;font-size:19px;font-weight:700}
+.buy .s{font-size:11px;color:var(--dim)}
+.buy.no{opacity:.35}
+.buy:not(.no):active{transform:scale(.96)}
 
-/* 背後光暈 */
-.halo{display:none;position:absolute;inset:-60%;z-index:0;pointer-events:none}
-.t2 .halo,.t3 .halo,.t4 .halo{display:block}
-.halo::before{content:"";position:absolute;inset:0;border-radius:50%;
-  background:conic-gradient(from 0deg,#A855F7,#22D3EE,#FF4D8D,#FFC53D,#A855F7);
-  filter:blur(26px);opacity:.28;animation:spin 7s linear infinite}
-.t3 .halo::before{animation-duration:5s;opacity:.32}
-.t4 .halo::before{animation-duration:3.6s;opacity:.40}
-
-/* RGB 邊框 */
-.ring{display:none;position:absolute;inset:0;border-radius:22px;padding:2px;z-index:5;pointer-events:none;
-  background:conic-gradient(from 0deg,#FF4D8D,#FFC53D,#4ADE80,#22D3EE,#A855F7,#FF4D8D);
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
-  -webkit-mask-composite:xor;mask-composite:exclude;animation:hue 4s linear infinite}
-.t2 .ring,.t3 .ring,.t4 .ring{display:block}
-@keyframes hue{to{filter:hue-rotate(360deg)}}
-
-/* D 粒子 + 餘燼 */
-.pc{display:none;position:absolute;inset:0;overflow:hidden;z-index:2;pointer-events:none}
-.t3 .pc,.t4 .pc{display:block}
-.pc i{position:absolute;bottom:-8px;border-radius:50%;background:var(--tc);
-  box-shadow:0 0 8px var(--tc);animation:rise linear infinite}
-.pc i::after{content:"";position:absolute;left:50%;top:100%;width:1px;height:16px;
-  transform:translateX(-50%);
-  background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 70%,transparent),transparent)}
-@keyframes rise{0%{transform:translateY(0) scale(.5);opacity:0}
-  12%{opacity:1}85%{opacity:.8}100%{transform:translateY(-210px) scale(1.15);opacity:0}}
-.embers{display:none;position:absolute;left:0;right:0;bottom:0;height:45%;z-index:1;pointer-events:none;
-  background:radial-gradient(ellipse at 50% 130%,color-mix(in srgb,var(--tc) 42%,transparent),transparent 70%);
-  animation:emb 3.6s ease-in-out infinite}
-.t3 .embers,.t4 .embers{display:block}
-@keyframes emb{0%,100%{opacity:.45}50%{opacity:.9}}
-
-/* E 傳說：切角框 + 角標 + 放射光束 */
-.t4{border-radius:0;transform:translateY(-4px);box-shadow:0 18px 44px rgba(255,77,141,.30);
-  clip-path:polygon(20px 0,100% 0,100% calc(100% - 20px),calc(100% - 20px) 100%,0 100%,0 20px)}
-.t4 .ring{border-radius:0}
-.brk{display:none;position:absolute;inset:6px;z-index:5;pointer-events:none}
-.t4 .brk{display:block}
-.brk::before,.brk::after{content:"";position:absolute;width:26px;height:26px;border:2px solid var(--legend);
-  box-shadow:0 0 10px var(--legend)}
-.brk::before{top:0;right:0;border-left:0;border-bottom:0}
-.brk::after{bottom:0;left:0;border-right:0;border-top:0}
-.beams{display:none;position:absolute;inset:-40%;z-index:0;pointer-events:none;
-  background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.13) 0deg 2.5deg,transparent 2.5deg 17deg);
-  -webkit-mask:radial-gradient(circle,transparent 18%,#000 42%,transparent 72%);
-  mask:radial-gradient(circle,transparent 18%,#000 42%,transparent 72%);
-  animation:spin 22s linear infinite}
-.t4 .beams{display:block}
-.t4 .name{background:linear-gradient(90deg,#fff,#FFC53D,#FF4D8D,#22D3EE,#fff);
-  background-size:300% 100%;-webkit-background-clip:text;background-clip:text;
-  color:transparent;animation:flow 3s linear infinite}
-@keyframes flow{to{background-position:300% 0}}
-.scan{display:none;position:absolute;left:0;right:0;top:0;height:32%;z-index:5;pointer-events:none;
-  background:linear-gradient(180deg,transparent,rgba(255,255,255,.16),transparent);
-  animation:sweepy 3.2s ease-in-out infinite}
-.t4 .scan{display:block}
-@keyframes sweepy{0%{transform:translateY(-120%)}60%,100%{transform:translateY(420%)}}
-
-/* 飄字 / F 爆閃光波 / 彩帶 */
-.fx{position:absolute;inset:0;z-index:9;pointer-events:none;overflow:hidden}
-.card.hit{transform:scale(1.07)}
-.float{position:absolute;left:50%;top:38%;font-family:"Chakra Petch",monospace;font-weight:700;
-  font-size:clamp(34px,5vh,54px);animation:fly 1.5s ease-out forwards;text-shadow:0 0 18px currentColor}
-@keyframes fly{0%{opacity:0;transform:translate(-50%,20px) scale(.6)}
-  20%{opacity:1;transform:translate(-50%,0) scale(1.15)}
-  100%{opacity:0;transform:translate(-50%,-90px) scale(1)}}
-.flash{position:absolute;inset:0;z-index:8;background:#fff;opacity:0;pointer-events:none}
-.card.lv .flash{animation:bang .7s ease-out}
-@keyframes bang{0%{opacity:0}8%{opacity:.9}100%{opacity:0}}
-.wave{position:absolute;left:50%;top:50%;width:20px;height:20px;margin:-10px;border-radius:50%;
-  border:3px solid var(--tc);opacity:0;z-index:8;pointer-events:none}
-.card.lv .wave{animation:wave 1.1s ease-out}
-@keyframes wave{0%{opacity:.95;transform:scale(.4)}100%{opacity:0;transform:scale(16)}}
-.conf{position:absolute;top:48%;left:50%;width:8px;height:14px;border-radius:2px;
-  animation:conf 1.5s ease-out forwards}
-@keyframes conf{0%{opacity:1;transform:translate(0,0) rotate(0)}
-  100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rot))}}
-
-/* ================= 商店 ================= */
-#shopWrap{height:100%;overflow-y:auto;padding-right:6px}
-#shopGrid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
-.item{background:linear-gradient(165deg,#141B3D,#0B1029);border:1px solid var(--line);
-  border-radius:20px;padding:18px;text-align:center;position:relative;overflow:hidden}
-.item.av{border-color:rgba(168,85,247,.5);box-shadow:0 0 30px rgba(168,85,247,.14) inset}
-.item .ico{font-size:52px;line-height:1.1}
-.item .ico img{width:78px;height:78px;border-radius:50%;object-fit:cover;border:2px solid var(--violet)}
-.item .nm{font-size:21px;font-weight:900;margin-top:6px}
-.item .kind{font-size:11px;letter-spacing:2px;color:var(--violet);font-weight:700}
-.item .pr{font-family:"Chakra Petch",monospace;font-size:29px;font-weight:700;color:var(--gold);margin-top:6px}
-.item .st{font-size:13px;color:var(--dim);margin-top:2px}
-.item.out{filter:grayscale(1);opacity:.4}
-.item.out::after{content:"售完";position:absolute;top:12px;right:14px;font-size:18px;font-weight:900;color:var(--minus)}
-.empty{color:var(--dim);text-align:center;padding:70px 0;font-size:20px;grid-column:1/-1}
-
-/* ================= 轉盤 ================= */
-#wheelWrap{position:fixed;inset:0;z-index:120;display:none;place-items:center;
-  background:radial-gradient(circle,rgba(6,10,28,.80),rgba(0,0,0,.94));backdrop-filter:blur(5px)}
-#wheelWrap.on{display:grid;animation:fadein .35s}
-@keyframes fadein{from{opacity:0}to{opacity:1}}
-.wbox{text-align:center;animation:pop .55s cubic-bezier(.2,1.55,.4,1)}
-@keyframes pop{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
-.wtag{font-family:"Chakra Petch",monospace;letter-spacing:12px;color:var(--gold);font-size:17px}
-.wwho{font-size:clamp(26px,4.2vh,44px);font-weight:900;margin:4px 0 14px}
-.wwho b{background:linear-gradient(90deg,#FFC53D,#FF4D8D,#22D3EE);background-size:200%;
-  -webkit-background-clip:text;background-clip:text;color:transparent;animation:flow 2.4s linear infinite}
-.wstage{position:relative;width:min(56vh,56vw);height:min(56vh,56vw);margin:0 auto}
-.wheel{position:absolute;inset:0;border-radius:50%;border:6px solid rgba(255,255,255,.14);
-  box-shadow:0 0 50px rgba(168,85,247,.4),inset 0 0 40px rgba(0,0,0,.55);
-  transition:transform 4.6s cubic-bezier(.12,.82,.16,1);cursor:pointer}
-.wlab{position:absolute;inset:0;display:flex;justify-content:center;pointer-events:none}
-.wlab span{margin-top:7%;font-size:clamp(13px,1.9vh,20px);font-weight:900;color:#0B0E22;
-  text-shadow:0 1px 2px rgba(255,255,255,.45);max-width:6.5em;line-height:1.25;text-align:center}
-.wlab span i{display:block;font-size:1.5em;font-style:normal}
-.wptr{position:absolute;top:-16px;left:50%;transform:translateX(-50%);z-index:5;
-  width:0;height:0;border-left:19px solid transparent;border-right:19px solid transparent;
-  border-top:34px solid var(--gold);filter:drop-shadow(0 3px 8px rgba(0,0,0,.7))}
-.whub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4;
-  width:20%;height:20%;border-radius:50%;display:grid;place-items:center;cursor:pointer;
-  background:linear-gradient(160deg,#1B2350,#0B1029);border:3px solid var(--gold);
-  font-weight:900;font-size:clamp(15px,2.2vh,24px);color:var(--gold);
-  box-shadow:0 0 26px rgba(255,197,61,.5);animation:hub 1.4s ease-in-out infinite}
-@keyframes hub{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.09)}}
-.whub.off{animation:none;cursor:default;opacity:.65}
-.wres{min-height:64px;margin-top:18px;font-size:clamp(20px,3.2vh,34px);font-weight:900;opacity:0;transition:.4s}
-.wres.on{opacity:1}
-.wres b{color:var(--gold)}
-.wbtn{margin-top:6px;padding:14px 46px;border:0;border-radius:16px;font-size:20px;font-weight:900;
-  font-family:inherit;background:linear-gradient(135deg,#FFC53D,#FF8A3D);color:#241500;cursor:pointer;
-  opacity:0;pointer-events:none;transition:.3s}
-.wbtn.on{opacity:1;pointer-events:auto}
-
-/* 低效能 */
-body.lowfx .halo::before,body.lowfx .pc,body.lowfx .scan,body.lowfx #stars i,body.lowfx .t1,
-body.lowfx .t4 .name,body.lowfx .ring,body.lowfx .holo,body.lowfx .sheen,body.lowfx .spark,
-body.lowfx .beams,body.lowfx .orbit,body.lowfx .embers,body.lowfx .avring{animation:none!important}
-body.lowfx .holo,body.lowfx .sheen,body.lowfx .beams,body.lowfx .pc{display:none!important}
-body.lowfx .t4 .name{-webkit-text-fill-color:var(--ink);color:var(--ink)}
-body.lowfx .ring{background:linear-gradient(135deg,#FF4D8D,#22D3EE)}
-@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important}}
+.log{font-size:13px;color:var(--dim);padding:9px 12px;background:var(--card);
+  border:1px solid var(--line);border-radius:10px;margin-bottom:6px;display:flex;gap:8px}
+.log b{color:var(--ink);font-weight:700}
+.log .d{margin-left:auto;font-family:"Chakra Petch",monospace}
+.log .d.p{color:var(--plus)} .log .d.m{color:var(--minus)}
+.hint{font-size:12px;color:var(--dim);line-height:1.7;margin-top:8px}
+#toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:150;
+  background:#1B2350;border:1px solid var(--line);padding:12px 20px;border-radius:30px;
+  font-weight:900;font-size:15px;opacity:0;transition:.25s;pointer-events:none}
+#toast.on{opacity:1;bottom:124px}
 </style>
 </head>
 <body>
-<div id="stars"></div>
+
+<div id="lock"><div class="in">
+  <h2>星塵榜 後台</h2>
+  <p>請輸入密碼</p>
+  <input id="pin" type="tel" inputmode="numeric" maxlength="6" placeholder="––––––">
+  <button id="pinGo">解鎖</button>
+  <div id="lockErr"></div>
+</div></div>
 
 <header>
-  <div class="brand"><h1>星塵榜</h1><small>CLASS POINTS</small></div>
-  <nav>
-    <div class="tab on" data-p="board">學生榜</div>
-    <div class="tab" data-p="shop">商店</div>
-  </nav>
-  <div class="tools">
-    <div class="mini on" id="btnFx">特效 ON</div>
-    <div class="mini on" id="btnSnd">音效 ON</div>
-  </div>
+  <h1 id="ttl">點數</h1>
+  <div class="st" id="conn">連線中…</div>
 </header>
 
-<main>
-  <section class="page on" id="p-board"><div id="grid"><div class="empty">連線中…</div></div></section>
-  <section class="page" id="p-shop"><div id="shopWrap"><div id="shopGrid"></div></div></section>
-</main>
+<!-- 點數 -->
+<section class="page on" id="p-points">
+  <h3>點名字就可以加減分</h3>
+  <div id="stuList"></div>
+  <h3>最近紀錄</h3>
+  <div id="logList"></div>
+</section>
 
-<div id="wheelWrap"><div class="wbox">
-  <div class="wtag">LEVEL UP</div>
-  <div class="wwho"><span id="wName"></span> 升級到 <b id="wTier"></b></div>
-  <div class="wstage">
-    <div class="wptr"></div>
-    <div class="wheel" id="wheel"></div>
-    <div class="whub" id="whub">轉</div>
+<!-- 商店 -->
+<section class="page" id="p-shop">
+  <h3>幫學生兌換</h3>
+  <div class="field">
+    <label>選學生</label>
+    <select id="buyWho"><option value="">— 請選擇 —</option></select>
   </div>
-  <div class="wres" id="wRes"></div>
-  <button class="wbtn" id="wTake">收下</button>
+  <div id="buyArea"><div class="hint">選一位學生後，這裡會列出他買得起的東西。</div></div>
+
+  <h3>上架新商品</h3>
+  <div class="field"><label>名稱</label><input id="itName" placeholder="乖乖 / 閃電貓頭像"></div>
+  <div class="two">
+    <div class="field"><label>圖示（emoji 或圖片網址）</label><input id="itEmoji" placeholder="🍪"></div>
+    <div class="field"><label>價格（點）</label><input id="itPrice" type="number" value="10"></div>
+  </div>
+  <div class="two">
+    <div class="field"><label>種類</label>
+      <select id="itType"><option value="goods">實體物品</option><option value="avatar">頭像</option></select>
+    </div>
+    <div class="field"><label>庫存（頭像不用填）</label><input id="itStock" type="number" value="5"></div>
+  </div>
+  <button class="btn gold" id="itAdd" style="width:100%">上架</button>
+
+  <h3>目前商品</h3>
+  <div id="itemList"></div>
+</section>
+
+<!-- 設定 -->
+<section class="page" id="p-set">
+  <h3>新增學生</h3>
+  <div class="field"><label>姓名</label><input id="stName" placeholder="王小明"></div>
+  <div class="field"><label>頭像</label><div class="avpick" id="avPick"></div></div>
+  <button class="btn gold" id="stAdd" style="width:100%">新增</button>
+
+  <h3>學生管理</h3>
+  <div id="manageList"></div>
+
+  <h3>加減分理由</h3>
+  <div class="field">
+    <label>加分（一行一個：名稱,分數）</label>
+    <textarea id="rsAdd"></textarea>
+  </div>
+  <div class="field">
+    <label>扣分（一行一個：名稱,分數，分數填正數）</label>
+    <textarea id="rsSub"></textarea>
+  </div>
+  <button class="btn gold" id="rsSave" style="width:100%">儲存理由</button>
+
+  <h3>轉盤獎品</h3>
+  <div class="field">
+    <label>一行一個：名稱,圖示,權重,加點</label>
+    <textarea id="wzList"></textarea>
+  </div>
+  <button class="btn gold" id="wzSave" style="width:100%">儲存轉盤</button>
+  <div class="hint">
+    每格在轉盤上大小都一樣，<b>權重</b>只影響實際抽中的機率（數字越大越常中，學生看不出來）。<br>
+    <b>加點</b>填 0 就是實體獎品；填數字會自動加進他的可用點數（不影響等級）。<br>
+    格數建議 6～8 個，太多字會擠。
+  </div>
+
+  <h3>其他</h3>
+  <button class="btn" id="expCsv" style="width:100%;margin-bottom:9px">匯出成績 CSV</button>
+  <button class="btn red" id="resetAll" style="width:100%">全班歸零（累積分＋餘額）</button>
+  <div class="hint">歸零只清分數，學生名單跟商品都會留著。</div>
+</section>
+
+<div id="sheet"><div class="box">
+  <div class="who">
+    <div class="av" id="shAv"></div>
+    <div><div class="nm" id="shNm"></div><div class="sub" id="shSub"></div></div>
+    <button class="btn sm" id="shClose" style="margin-left:auto">關閉</button>
+  </div>
+  <h3 style="margin-top:0">加分</h3>
+  <div class="reasons" id="shAdd"></div>
+  <h3>扣分</h3>
+  <div class="reasons" id="shSub2"></div>
+  <h3>自訂</h3>
+  <div class="two">
+    <input id="shCustom" type="number" placeholder="分數" style="padding:13px;background:var(--card);border:1px solid var(--line);border-radius:12px;color:var(--ink)">
+    <input id="shWhy" placeholder="原因" style="padding:13px;background:var(--card);border:1px solid var(--line);border-radius:12px;color:var(--ink)">
+  </div>
+  <div class="two" style="margin-top:10px">
+    <button class="btn" id="shCP" style="color:var(--plus)">加上去</button>
+    <button class="btn" id="shCM" style="color:var(--minus)">扣掉</button>
+  </div>
 </div></div>
+
+<nav>
+  <div class="on" data-p="points"><i>⭐</i>點數</div>
+  <div data-p="shop"><i>🛒</i>商店</div>
+  <div data-p="set"><i>⚙️</i>設定</div>
+</nav>
+
+<div id="toast"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, doc, onSnapshot, updateDoc, addDoc,
-  query, orderBy, limit, serverTimestamp }
+import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc,
+  onSnapshot, query, orderBy, limit, serverTimestamp, getDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { firebaseConfig, tierOf, nextTier, avatarHTML, esc, DEFAULT_WHEEL } from "./config.js";
+import { firebaseConfig, ADMIN_PIN, DEFAULT_REASONS, DEFAULT_WHEEL, AVATARS, tierOf, avatarHTML, esc }
+  from "./config.js";
 
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
+
 const $ = id => document.getElementById(id);
+const conn = $("conn");
+let students = [], items = [], reasons = DEFAULT_REASONS, wheel = DEFAULT_WHEEL.slice();
 
-/* 星星 */
-const sw = $("stars");
-for (let i = 0; i < 90; i++){
-  const s = document.createElement("i");
-  s.style.left = Math.random()*100 + "%";
-  s.style.top  = Math.random()*100 + "%";
-  s.style.animationDelay = (Math.random()*4) + "s";
-  s.style.opacity = Math.random()*.8 + .2;
-  sw.appendChild(s);
-}
+/* ---------- 鎖 ---------- */
+function unlock(){ $("lock").style.display = "none"; }
+if (sessionStorage.getItem("ok") === "1") unlock();
+$("pinGo").onclick = () => {
+  if ($("pin").value === ADMIN_PIN){ sessionStorage.setItem("ok","1"); unlock(); }
+  else { $("lockErr").textContent = "密碼不對"; $("pin").value = ""; }
+};
+$("pin").addEventListener("keydown", e => { if (e.key === "Enter") $("pinGo").click(); });
 
-/* 分頁 */
-document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
-  document.querySelectorAll(".tab").forEach(x => x.classList.remove("on"));
+/* ---------- 分頁 ---------- */
+const titles = { points:"點數", shop:"商店", set:"設定" };
+document.querySelectorAll("nav div").forEach(n => n.onclick = () => {
+  document.querySelectorAll("nav div").forEach(x => x.classList.remove("on"));
   document.querySelectorAll(".page").forEach(x => x.classList.remove("on"));
-  t.classList.add("on");
-  $("p-" + t.dataset.p).classList.add("on");
+  n.classList.add("on");
+  $("p-" + n.dataset.p).classList.add("on");
+  $("ttl").textContent = titles[n.dataset.p];
+  window.scrollTo(0,0);
 });
 
-/* 開關 */
-let lowfx = localStorage.getItem("lowfx") === "1";
-let snd   = localStorage.getItem("snd") !== "0";
-function syncToggles(){
-  document.body.classList.toggle("lowfx", lowfx);
-  $("btnFx").textContent = lowfx ? "特效 OFF" : "特效 ON";
-  $("btnFx").classList.toggle("on", !lowfx);
-  $("btnSnd").textContent = snd ? "音效 ON" : "音效 OFF";
-  $("btnSnd").classList.toggle("on", snd);
-}
-$("btnFx").onclick  = () => { lowfx = !lowfx; localStorage.setItem("lowfx", lowfx?"1":"0"); syncToggles(); };
-$("btnSnd").onclick = () => { snd = !snd; localStorage.setItem("snd", snd?"1":"0"); syncToggles(); };
-syncToggles();
-
-/* 音效 */
-let ac = null;
-function tone(seq, type = "triangle", vol = .16){
-  if (!snd) return;
-  try{
-    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
-    seq.forEach(([f, at, dur]) => {
-      const o = ac.createOscillator(), g = ac.createGain();
-      o.type = type; o.frequency.value = f;
-      const t = ac.currentTime + at;
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(vol, t + .02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      o.connect(g).connect(ac.destination); o.start(t); o.stop(t + dur + .02);
-    });
-  }catch(e){}
-}
-const sfxUp   = () => tone([[660,0,.22],[880,.09,.22],[1320,.18,.26]]);
-const sfxDown = () => tone([[420,0,.2],[260,.09,.26]]);
-const sfxLv   = () => tone([[523,0,.3],[659,.1,.3],[784,.2,.3],[1047,.3,.36],[1319,.42,.5]]);
-const sfxTick = () => tone([[1400,0,.03]], "square", .05);
-const sfxWin  = () => tone([[784,0,.25],[1047,.12,.25],[1319,.24,.3],[1568,.36,.55]]);
-
-/* ================= 學生榜（差異更新，動畫不會被重置） ================= */
-const grid = $("grid");
-const nodes = new Map();
-const prev  = {};
-const byId  = {};
-let signature = "", firstPaint = true;
-
-function shell(s){
-  const parts = Array.from({length:10}, () => {
-    const sz = (2 + Math.random()*4).toFixed(1);
-    return `<i style="left:${(Math.random()*94+3).toFixed(1)}%;width:${sz}px;height:${sz}px;`
-         + `animation-duration:${(2.2+Math.random()*2.6).toFixed(2)}s;`
-         + `animation-delay:${(Math.random()*3.4).toFixed(2)}s;`
-         + `opacity:${(.45+Math.random()*.55).toFixed(2)}"></i>`;
-  }).join("");
-  const sparks = Array.from({length:3}, () =>
-    `<i style="left:${(Math.random()*80+10).toFixed(0)}%;top:${(Math.random()*70+12).toFixed(0)}%;`
-    + `animation-delay:${(Math.random()*2.6).toFixed(2)}s"></i>`).join("");
-  const el = document.createElement("div");
-  el.className = "card t0";
-  el.dataset.id = s.id;
-  el.innerHTML = `
-    <div class="beams"></div><div class="halo"></div><div class="weave"></div>
-    <div class="holo"></div><div class="embers"></div>
-    <div class="pc">${parts}</div><div class="spark">${sparks}</div>
-    <div class="sheen"></div><div class="scan"></div>
-    <div class="ring"></div><div class="brk"></div>
-    <div class="body">
-      <div class="avwrap"><div class="avring"></div>
-        <div class="orbit"><i></i><i></i><i></i></div>
-        <div class="avslot">${avatarHTML(s.avatar)}</div>
-      </div>
-      <div class="name"></div><div class="pts"></div>
-      <div class="meta"></div><div class="goal"></div>
-    </div>
-    <div class="bar"><i></i></div>
-    <div class="flash"></div><div class="wave"></div><div class="fx"></div>`;
-  return el;
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("on");
+  clearTimeout(t._x); t._x = setTimeout(() => t.classList.remove("on"), 1600);
 }
 
-function paint(el, s){
-  const total = s.total || 0, wallet = s.wallet || 0;
-  const t = tierOf(total), nx = nextTier(total);
-  let prog = 100, goal = "已達最高等級";
-  if (nx){
-    prog = Math.round((total - t.min) / (nx.min - t.min) * 100);
-    goal = `離 ${nx.name} 還差 ${nx.min - total} 分`;
-  }
-  for (let k = 0; k < 5; k++) el.classList.remove("t" + k);
-  el.classList.add("t" + t.key);
-  el.querySelector(".name").textContent = s.name;
-  el.querySelector(".pts").textContent  = wallet;
-  el.querySelector(".meta").innerHTML   = `${t.name} <b>· 累積 ${total}</b>`;
-  el.querySelector(".goal").textContent = goal;
-  el.querySelector(".bar i").style.width = Math.max(0, Math.min(100, prog)) + "%";
-  const slot = el.querySelector(".avslot"), want = avatarHTML(s.avatar);
-  if (slot.innerHTML !== want) slot.innerHTML = want;
-}
+/* ---------- 資料 ---------- */
+function startData(){
+const onErr = e => { conn.textContent = "讀取失敗"; toast("讀取失敗：" + e.code); console.error(e); };
 
-function popFloat(id, diff){
-  const el = nodes.get(id); if (!el) return;
-  const f = document.createElement("div");
-  f.className = "float";
-  f.textContent = (diff > 0 ? "+" : "") + diff;
-  f.style.color = diff > 0 ? "var(--plus)" : "var(--minus)";
-  el.querySelector(".fx").appendChild(f);
-  el.classList.add("hit");
-  setTimeout(() => el.classList.remove("hit"), 320);
-  setTimeout(() => f.remove(), 1600);
-  diff > 0 ? sfxUp() : sfxDown();
-}
-
-function burst(id){
-  const el = nodes.get(id); if (!el) return;
-  el.classList.remove("lv"); void el.offsetWidth; el.classList.add("lv");
-  if (!lowfx){
-    const fx = el.querySelector(".fx");
-    const cols = ["#FFC53D","#FF4D8D","#22D3EE","#A855F7","#4ADE80","#fff"];
-    for (let i = 0; i < 16; i++){
-      const c = document.createElement("div");
-      c.className = "conf";
-      const a = Math.random()*Math.PI*2, d = 60 + Math.random()*110;
-      c.style.setProperty("--dx", (Math.cos(a)*d).toFixed(0) + "px");
-      c.style.setProperty("--dy", (Math.sin(a)*d + 40).toFixed(0) + "px");
-      c.style.setProperty("--rot", (Math.random()*900 - 450).toFixed(0) + "deg");
-      c.style.background = cols[i % cols.length];
-      c.style.animationDelay = (Math.random()*.12).toFixed(2) + "s";
-      fx.appendChild(c);
-      setTimeout(() => c.remove(), 1800);
-    }
-  }
-  sfxLv();
-  setTimeout(() => el.classList.remove("lv"), 1300);
-}
-
-function startBoard(){
-onSnapshot(collection(db, "students"), snap => {
-  const list = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+onSnapshot(collection(db,"students"), s => {
+  students = s.docs.map(d => ({ id:d.id, ...d.data() }))
     .sort((a,b) => String(a.name).localeCompare(String(b.name), "zh-Hant"));
-  list.forEach(s => byId[s.id] = s);
-
-  if (!list.length){
-    grid.innerHTML = `<div class="empty">還沒有學生，去後台的「設定」新增</div>`;
-    nodes.clear(); signature = ""; return;
-  }
-  const sig = list.map(s => s.id).join("|");
-  if (sig !== signature){
-    grid.innerHTML = "";
-    nodes.clear();
-    list.forEach(s => { const el = shell(s); grid.appendChild(el); nodes.set(s.id, el); });
-    signature = sig;
-  }
-  list.forEach(s => {
-    const el = nodes.get(s.id); if (!el) return;
-    paint(el, s);
-    const p = prev[s.id], total = s.total || 0, wallet = s.wallet || 0;
-    if (!firstPaint && p){
-      if (p.wallet !== wallet) popFloat(s.id, wallet - p.wallet);
-      if (tierOf(total).key > tierOf(p.total).key) burst(s.id);
-    }
-    prev[s.id] = { total, wallet };
-  });
-  firstPaint = false;
-}, err => { grid.innerHTML = `<div class="empty">讀取失敗：${esc(err.message)}</div>`; });
-}
-
-/* ================= 商店 ================= */
-const shopGrid = $("shopGrid");
-function startShop(){
-onSnapshot(collection(db, "items"), snap => {
-  const list = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    .filter(i => i.active !== false)
+  renderStudents(); renderManage(); renderBuyWho();
+}, onErr);
+onSnapshot(collection(db,"items"), s => {
+  items = s.docs.map(d => ({ id:d.id, ...d.data() }))
     .sort((a,b) => (a.price||0) - (b.price||0));
-  if (!list.length){ shopGrid.innerHTML = `<div class="empty">商店還沒上架東西</div>`; return; }
-  shopGrid.innerHTML = list.map(i => {
-    const isAv = i.type === "avatar";
-    const out  = !isAv && (i.stock || 0) <= 0;
-    const ico  = /^https?:\/\//.test(i.emoji || "")
-      ? `<img src="${esc(i.emoji)}" alt="">` : (i.emoji || "🎁");
-    return `<div class="item ${isAv?"av":""} ${out?"out":""}">
-      <div class="ico">${ico}</div>
-      <div class="nm">${esc(i.name)}</div>
-      ${isAv ? `<div class="kind">頭像</div>` : ""}
-      <div class="pr">${i.price || 0} 點</div>
-      <div class="st">${isAv ? "換了就永久是你的" : `剩下 ${i.stock || 0} 個`}</div>
+  renderItems(); renderBuyArea();
+}, onErr);
+onSnapshot(query(collection(db,"logs"), orderBy("at","desc"), limit(30)), s => {
+  const list = s.docs.map(d => d.data());
+  $("logList").innerHTML = list.length ? list.map(l => {
+    const d = l.delta || 0;
+    return `<div class="log"><b>${esc(l.studentName)}</b> ${esc(l.reason)}
+      <span class="d ${d>=0?"p":"m"}">${d>=0?"+":""}${d}</span></div>`;
+  }).join("") : `<div class="hint">還沒有紀錄</div>`;
+}, onErr);
+(async () => {
+  const ref = doc(db, "config", "reasons");
+  const snap = await getDoc(ref).catch(() => null);
+  if (snap && snap.exists()) reasons = snap.data();
+  else await setDoc(ref, DEFAULT_REASONS).catch(() => {});
+  fillReasonBoxes();
+
+  const wref = doc(db, "config", "wheel");
+  const wsnap = await getDoc(wref).catch(() => null);
+  if (wsnap && wsnap.exists() && Array.isArray(wsnap.data().prizes) && wsnap.data().prizes.length)
+    wheel = wsnap.data().prizes;
+  else await setDoc(wref, { prizes: DEFAULT_WHEEL }).catch(() => {});
+  fillWheelBox();
+})();
+}
+
+/* ---------- 點數頁 ---------- */
+function renderStudents(){
+  $("stuList").innerHTML = students.length ? students.map(s => {
+    const t = tierOf(s.total||0);
+    return `<div class="row tap" data-open="${s.id}">
+      <div class="av">${avatarHTML(s.avatar)}</div>
+      <div class="info"><div class="nm">${esc(s.name)}</div>
+        <div class="sub">${t.name} · 累積 ${s.total||0}</div></div>
+      <div class="big num">${s.wallet||0}</div>
     </div>`;
-  }).join("");
-}, err => { shopGrid.innerHTML = `<div class="empty">讀取失敗：${esc(err.message)}</div>`; });
+  }).join("") : `<div class="hint">還沒有學生，去「設定」新增。</div>`;
+  $("stuList").querySelectorAll("[data-open]").forEach(el =>
+    el.onclick = () => openSheet(el.dataset.open));
 }
 
-/* ================= 轉盤 ================= */
-const SEG_COLORS = ["#FFC53D","#A855F7","#22D3EE","#FF4D8D","#4ADE80","#FB923C","#60A5FA","#F472B6"];
-let prizes = DEFAULT_WHEEL.slice();
-let queue = [], current = null, spinning = false, landed = null;
-
-function buildWheel(){
-  const n = prizes.length, per = 360 / n;
-  const stops = prizes.map((p,i) =>
-    `${SEG_COLORS[i % SEG_COLORS.length]} ${(i*per).toFixed(3)}deg ${((i+1)*per).toFixed(3)}deg`).join(",");
-  const labs = prizes.map((p,i) =>
-    `<div class="wlab" style="transform:rotate(${(i*per + per/2).toFixed(3)}deg)">
-       <span><i>${p.emoji || "🎁"}</i>${esc(p.label)}</span></div>`).join("");
-  const w = $("wheel");
-  w.style.transition = "none";
-  w.style.transform  = "rotate(0deg)";
-  w.style.background = `conic-gradient(from 0deg,${stops})`;
-  w.innerHTML = labs;
-  void w.offsetWidth;
+/* ---------- 加減分面板 ---------- */
+let cur = null;
+function openSheet(id){
+  cur = students.find(s => s.id === id); if (!cur) return;
+  $("shAv").innerHTML = avatarHTML(cur.avatar);
+  $("shNm").textContent = cur.name;
+  $("shSub").textContent = `可用 ${cur.wallet||0} 點 · 累積 ${cur.total||0} 分`;
+  $("shAdd").innerHTML = (reasons.add||[]).map((r,i) =>
+    `<div class="rb p" data-k="add" data-i="${i}">${esc(r.label)}<b>+${r.points}</b></div>`).join("");
+  $("shSub2").innerHTML = (reasons.sub||[]).map((r,i) =>
+    `<div class="rb m" data-k="sub" data-i="${i}">${esc(r.label)}<b>−${r.points}</b></div>`).join("");
+  document.querySelectorAll(".rb").forEach(b => b.onclick = () => {
+    const r = reasons[b.dataset.k][+b.dataset.i];
+    apply(b.dataset.k === "add" ? r.points : -r.points, r.label);
+  });
+  $("shCustom").value = ""; $("shWhy").value = "";
+  $("sheet").classList.add("on");
+}
+$("shClose").onclick = () => $("sheet").classList.remove("on");
+$("sheet").onclick = e => { if (e.target.id === "sheet") $("sheet").classList.remove("on"); };
+$("shCP").onclick = () => customPoint(1);
+$("shCM").onclick = () => customPoint(-1);
+function customPoint(sign){
+  const n = Math.abs(parseInt($("shCustom").value, 10));
+  if (!n) return toast("先填分數");
+  apply(sign * n, $("shWhy").value.trim() || "手動調整");
 }
 
-function pickIndex(){
-  const total = prizes.reduce((a,p) => a + (Number(p.weight) > 0 ? Number(p.weight) : 1), 0);
-  let r = Math.random() * total;
-  for (let i = 0; i < prizes.length; i++){
-    r -= (Number(prizes[i].weight) > 0 ? Number(prizes[i].weight) : 1);
-    if (r <= 0) return i;
+async function apply(delta, reason){
+  if (!cur) return;
+  const total  = cur.total || 0, wallet = cur.wallet || 0;
+  const nTotal = delta > 0 ? total + delta : total;         // 扣分不動累積分
+  const nWallet = Math.max(0, wallet + delta);              // 餘額最低 0
+  const real   = nWallet - wallet;                          // 實際變動（可能被 0 卡住）
+  await updateDoc(doc(db,"students",cur.id), { total:nTotal, wallet:nWallet });
+  await addDoc(collection(db,"logs"), {
+    studentId:cur.id, studentName:cur.name, delta:real, reason, kind:"point", at:serverTimestamp()
+  });
+
+  // 升級 → 丟一筆待轉紀錄，大螢幕會跳出轉盤（存在 Firestore，重整也不會掉）
+  const before = tierOf(total), after = tierOf(nTotal);
+  if (after.key > before.key){
+    await addDoc(collection(db,"spins"), {
+      studentId:cur.id, studentName:cur.name,
+      tierKey:after.key, tierName:after.name,
+      status:"pending", at:serverTimestamp()
+    });
+    toast(`${cur.name} 升上 ${after.name}！去大螢幕轉盤`);
   }
-  return prizes.length - 1;
+
+  cur = { ...cur, total:nTotal, wallet:nWallet };
+  $("shSub").textContent = `可用 ${nWallet} 點 · 累積 ${nTotal} 分`;
+  if (after.key === before.key) toast(`${cur.name} ${real >= 0 ? "+" : ""}${real}`);
 }
 
-function showSpin(sp){
-  current = sp; spinning = false; landed = null;
-  $("wName").textContent = sp.studentName;
-  $("wTier").textContent = sp.tierName;
-  $("wRes").classList.remove("on"); $("wRes").innerHTML = "";
-  $("wTake").classList.remove("on");
-  $("whub").classList.remove("off"); $("whub").textContent = "轉";
-  buildWheel();
-  $("wheelWrap").classList.add("on");
+/* ---------- 商店頁 ---------- */
+function renderBuyWho(){
+  const sel = $("buyWho"), keep = sel.value;
+  sel.innerHTML = `<option value="">— 請選擇 —</option>` +
+    students.map(s => `<option value="${s.id}">${esc(s.name)}（${s.wallet||0} 點）</option>`).join("");
+  sel.value = keep;
+}
+$("buyWho").onchange = renderBuyArea;
+
+function renderBuyArea(){
+  const s = students.find(x => x.id === $("buyWho").value);
+  const box = $("buyArea");
+  if (!s){ box.innerHTML = `<div class="hint">選一位學生後，這裡會列出他買得起的東西。</div>`; return; }
+  const live = items.filter(i => i.active !== false);
+  if (!live.length){ box.innerHTML = `<div class="hint">還沒上架商品。</div>`; return; }
+  box.innerHTML = `<div class="hint" style="margin-bottom:10px">${esc(s.name)} 目前有
+    <b style="color:var(--gold)">${s.wallet||0}</b> 點</div>
+    <div class="buygrid">` + live.map(i => {
+      const isAv = i.type === "avatar";
+      const out  = !isAv && (i.stock||0) <= 0;
+      const poor = (s.wallet||0) < (i.price||0);
+      const ic = /^https?:\/\//.test(i.emoji||"") ? `<img src="${esc(i.emoji)}">` : (i.emoji||"🎁");
+      return `<div class="buy ${out||poor?"no":""}" data-buy="${out||poor?"":i.id}">
+        <div class="ic">${ic}</div><div class="n">${esc(i.name)}</div>
+        <div class="p">${i.price||0} 點</div>
+        <div class="s">${isAv ? "頭像" : out ? "售完" : `剩 ${i.stock||0}`}${poor?" · 點數不夠":""}</div>
+      </div>`;
+    }).join("") + `</div>`;
+  box.querySelectorAll("[data-buy]").forEach(el => {
+    if (!el.dataset.buy) return;
+    el.onclick = () => doBuy(s.id, el.dataset.buy);
+  });
 }
 
-function doSpin(){
-  if (spinning || !current) return;
-  spinning = true;
-  $("whub").classList.add("off"); $("whub").textContent = "…";
-  const idx = pickIndex();
-  const n = prizes.length, per = 360 / n;
-  const centre = idx * per + per / 2;
-  const jitter = (Math.random() - .5) * per * .6;
-  const target = 360 * 6 + (360 - centre - jitter);
-  const w = $("wheel");
-  w.style.transition = "transform 4.6s cubic-bezier(.12,.82,.16,1)";
-  w.style.transform  = `rotate(${target.toFixed(2)}deg)`;
-  let ticks = 0;
-  const iv = setInterval(() => { sfxTick(); if (++ticks > 26) clearInterval(iv); }, 150);
-  landed = prizes[idx];
-  setTimeout(() => {
-    clearInterval(iv);
-    const bonus = Number(landed.points) > 0 ? `　<b>+${landed.points} 點</b>` : "";
-    $("wRes").innerHTML = `${landed.emoji || "🎁"} 抽中 <b>${esc(landed.label)}</b>${bonus}`;
-    $("wRes").classList.add("on");
-    $("wTake").classList.add("on");
-    sfxWin();
-  }, 4700);
-}
-$("wheel").onclick = doSpin;
-$("whub").onclick  = doSpin;
+async function doBuy(sid, iid){
+  const s = students.find(x => x.id === sid), i = items.find(x => x.id === iid);
+  if (!s || !i) return;
+  if ((s.wallet||0) < (i.price||0)) return toast("點數不夠");
+  if (!confirm(`確定讓 ${s.name} 用 ${i.price} 點換「${i.name}」？`)) return;
 
-$("wTake").onclick = async () => {
-  if (!current || !landed) return;
-  const sp = current, pz = landed;
-  $("wheelWrap").classList.remove("on");
-  current = null; landed = null; spinning = false;
-  try{
-    await updateDoc(doc(db, "spins", sp.id), {
-      status: "done", prize: pz.label, prizePoints: Number(pz.points) || 0, doneAt: serverTimestamp()
-    });
-    const pts = Number(pz.points) || 0;
-    if (pts > 0){
-      const s = byId[sp.studentId];
-      if (s) await updateDoc(doc(db, "students", sp.studentId), { wallet: (s.wallet || 0) + pts });
-    }
-    await addDoc(collection(db, "logs"), {
-      studentId: sp.studentId, studentName: sp.studentName, delta: pts,
-      reason: `轉盤（${sp.tierName}）：${pz.label}`, kind: "spin", at: serverTimestamp()
-    });
-  }catch(e){ console.error(e); }
-  setTimeout(next, 600);
+  const patch = { wallet: (s.wallet||0) - (i.price||0) };
+  if (i.type === "avatar") patch.avatar = i.emoji;
+  await updateDoc(doc(db,"students",sid), patch);
+  if (i.type !== "avatar") await updateDoc(doc(db,"items",iid), { stock: Math.max(0,(i.stock||0)-1) });
+  await addDoc(collection(db,"logs"), {
+    studentId:sid, studentName:s.name, delta:-(i.price||0),
+    reason:`兌換「${i.name}」`, kind:"buy", at:serverTimestamp()
+  });
+  toast("兌換完成");
+}
+
+$("itAdd").onclick = async () => {
+  const name = $("itName").value.trim();
+  if (!name) return toast("填一下名稱");
+  const type = $("itType").value;
+  await addDoc(collection(db,"items"), {
+    name, emoji: $("itEmoji").value.trim() || (type==="avatar"?"🎭":"🎁"),
+    price: Math.max(0, parseInt($("itPrice").value,10) || 0),
+    stock: type === "avatar" ? 999 : Math.max(0, parseInt($("itStock").value,10) || 0),
+    type, active:true
+  });
+  $("itName").value = ""; $("itEmoji").value = "";
+  toast("已上架");
 };
 
-function next(){
-  if (current || !queue.length) return;
-  showSpin(queue[0]);
+function renderItems(){
+  $("itemList").innerHTML = items.length ? items.map(i => {
+    const ic = /^https?:\/\//.test(i.emoji||"") ? `<img src="${esc(i.emoji)}">` : (i.emoji||"🎁");
+    return `<div class="row">
+      <div class="av">${ic}</div>
+      <div class="info"><div class="nm">${esc(i.name)}</div>
+        <div class="sub">${i.price||0} 點 · ${i.type==="avatar"?"頭像":`庫存 ${i.stock||0}`}</div></div>
+      ${i.type!=="avatar" ? `<button class="btn sm" data-st="${i.id}">補貨</button>` : ""}
+      <button class="btn sm red" data-del="${i.id}">刪</button>
+    </div>`;
+  }).join("") : `<div class="hint">還沒有商品。</div>`;
+  $("itemList").querySelectorAll("[data-st]").forEach(b => b.onclick = async () => {
+    const i = items.find(x => x.id === b.dataset.st);
+    const n = prompt(`「${i.name}」庫存改成幾個？`, i.stock||0);
+    if (n === null) return;
+    await updateDoc(doc(db,"items",i.id), { stock: Math.max(0, parseInt(n,10)||0) });
+  });
+  $("itemList").querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
+    const i = items.find(x => x.id === b.dataset.del);
+    if (confirm(`刪掉「${i.name}」？`)) await deleteDoc(doc(db,"items",i.id));
+  });
 }
 
-function startSpins(){
-  onSnapshot(doc(db, "config", "wheel"), d => {
-    const v = d.exists() ? d.data().prizes : null;
-    if (Array.isArray(v) && v.length) prizes = v;
-    if (current && !spinning) buildWheel();
-  }, e => console.warn(e));
+/* ---------- 設定頁 ---------- */
+let pickAv = AVATARS[0];
+$("avPick").innerHTML = AVATARS.map((a,i) =>
+  `<span class="${i===0?"on":""}" data-a="${a}">${a}</span>`).join("");
+$("avPick").querySelectorAll("span").forEach(el => el.onclick = () => {
+  $("avPick").querySelectorAll("span").forEach(x => x.classList.remove("on"));
+  el.classList.add("on"); pickAv = el.dataset.a;
+});
 
-  onSnapshot(query(collection(db, "spins"), orderBy("at", "asc"), limit(20)), snap => {
-    queue = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(s => s.status === "pending");
-    next();
-  }, e => console.warn(e));
+$("stAdd").onclick = async () => {
+  const name = $("stName").value.trim();
+  if (!name) return toast("填一下名字");
+  await addDoc(collection(db,"students"), { name, avatar:pickAv, total:0, wallet:0 });
+  $("stName").value = "";
+  toast("已新增");
+};
+
+function renderManage(){
+  $("manageList").innerHTML = students.length ? students.map(s => `
+    <div class="row">
+      <div class="av">${avatarHTML(s.avatar)}</div>
+      <div class="info"><div class="nm">${esc(s.name)}</div>
+        <div class="sub">累積 ${s.total||0} · 餘額 ${s.wallet||0}</div></div>
+      <button class="btn sm" data-edit="${s.id}">編輯</button>
+      <button class="btn sm red" data-rm="${s.id}">刪</button>
+    </div>`).join("") : `<div class="hint">還沒有學生。</div>`;
+
+  $("manageList").querySelectorAll("[data-edit]").forEach(b => b.onclick = async () => {
+    const s = students.find(x => x.id === b.dataset.edit);
+    const name = prompt("姓名", s.name); if (name === null) return;
+    const avatar = prompt("頭像（emoji 或圖片網址）", s.avatar || "🙂"); if (avatar === null) return;
+    const total = prompt("累積分（決定特效等級）", s.total||0); if (total === null) return;
+    const wallet = prompt("可用點數", s.wallet||0); if (wallet === null) return;
+    await updateDoc(doc(db,"students",s.id), {
+      name: name.trim() || s.name, avatar: avatar.trim() || "🙂",
+      total: Math.max(0, parseInt(total,10)||0), wallet: Math.max(0, parseInt(wallet,10)||0)
+    });
+    toast("已更新");
+  });
+  $("manageList").querySelectorAll("[data-rm]").forEach(b => b.onclick = async () => {
+    const s = students.find(x => x.id === b.dataset.rm);
+    if (confirm(`刪掉 ${s.name}？分數會一起不見。`)) await deleteDoc(doc(db,"students",s.id));
+  });
 }
 
-/* ================= 啟動 ================= */
+function fillReasonBoxes(){
+  $("rsAdd").value = (reasons.add||[]).map(r => `${r.label},${r.points}`).join("\n");
+  $("rsSub").value = (reasons.sub||[]).map(r => `${r.label},${r.points}`).join("\n");
+}
+const parseReasons = txt => txt.split("\n").map(l => l.trim()).filter(Boolean).map(l => {
+  const [label, p] = l.split(",");
+  return { label: (label||"").trim(), points: Math.abs(parseInt(p,10)) || 1 };
+}).filter(r => r.label);
+
+$("rsSave").onclick = async () => {
+  reasons = { add: parseReasons($("rsAdd").value), sub: parseReasons($("rsSub").value) };
+  await setDoc(doc(db,"config","reasons"), reasons);
+  toast("理由已更新");
+};
+
+function fillWheelBox(){
+  $("wzList").value = wheel
+    .map(p => `${p.label},${p.emoji||"🎁"},${p.weight||1},${p.points||0}`).join("\n");
+}
+$("wzSave").onclick = async () => {
+  const list = $("wzList").value.split("\n").map(l => l.trim()).filter(Boolean).map(l => {
+    const [label, emoji, weight, points] = l.split(",").map(x => (x||"").trim());
+    return {
+      label: label || "獎品",
+      emoji: emoji || "🎁",
+      weight: Math.max(1, parseInt(weight,10) || 1),
+      points: Math.max(0, parseInt(points,10) || 0)
+    };
+  });
+  if (list.length < 2) return toast("至少要兩格");
+  wheel = list;
+  await setDoc(doc(db,"config","wheel"), { prizes: wheel });
+  toast("轉盤已更新");
+};
+
+$("expCsv").onclick = () => {
+  const rows = [["姓名","累積分","等級","可用點數"],
+    ...students.map(s => [s.name, s.total||0, tierOf(s.total||0).name, s.wallet||0])];
+  const csv = "\uFEFF" + rows.map(r => r.join(",")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type:"text/csv" }));
+  a.download = `星塵榜_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+};
+
+$("resetAll").onclick = async () => {
+  if (!confirm("確定把全班累積分和餘額都歸零？")) return;
+  if (!confirm("再確認一次，這個動作不能復原。")) return;
+  for (const s of students) await updateDoc(doc(db,"students",s.id), { total:0, wallet:0 });
+  toast("已全部歸零");
+};
+
+/* ---------- 先登入，成功之後才開始讀資料 ---------- */
 signInAnonymously(getAuth(app))
-  .then(() => { startBoard(); startShop(); startSpins(); })
+  .then(() => { conn.textContent = "已連線"; startData(); })
   .catch(e => {
-    grid.innerHTML = `<div class="empty">登入失敗：${esc(e.code)}<br>
-      <span style="font-size:15px">Firebase Console → Authentication → 啟用「匿名」</span></div>`;
+    conn.textContent = "登入失敗";
+    $("stuList").innerHTML =
+      `<div class="hint" style="color:var(--minus)">登入失敗：${esc(e.code)}<br>
+       請到 Firebase Console → Authentication → Sign-in method → 啟用「匿名」。</div>`;
   });
 </script>
 </body>
