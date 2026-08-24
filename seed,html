@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>匯入班級名單</title>
+<style>
+body{background:#070B1C;color:#EEF2FF;font-family:"Noto Sans TC",system-ui,sans-serif;
+  padding:26px;max-width:620px;margin:0 auto}
+h1{font-size:20px;font-weight:900;letter-spacing:2px;margin-bottom:6px}
+p.sub{color:#8C97B8;font-size:13px;line-height:1.8;margin-bottom:20px}
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:20px}
+.s{background:#111838;border:1px solid rgba(255,255,255,.11);border-radius:12px;
+  padding:10px 12px;display:flex;align-items:center;gap:9px;font-weight:700}
+.s span{font-size:22px}
+button{width:100%;padding:16px;border:0;border-radius:14px;font-size:17px;font-weight:900;
+  background:linear-gradient(135deg,#FFC53D,#FF8A3D);color:#241500;font-family:inherit}
+button:disabled{opacity:.4}
+#out{margin-top:18px;font-size:14px;line-height:2;color:#8C97B8;white-space:pre-wrap}
+a{color:#FFC53D}
+</style>
+</head>
+<body>
+<h1>匯入班級名單</h1>
+<p class="sub">按一次就好。已經存在的同名學生會自動跳過，不會重複。<br>
+匯入後就可以把這個檔案刪掉。</p>
+
+<div class="list" id="preview"></div>
+<button id="go">匯入 15 位學生</button>
+<div id="out"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, getDocs, addDoc }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ===== 設定（原 config.js，已內嵌，不再需要外部檔案）===== */
+// ===================== 共用設定 =====================
+const firebaseConfig = {
+  apiKey: "AIzaSyDrDK9sr3U1239BzbU7xMCc5QddYvCC34s",
+  authDomain: "school-e429d.firebaseapp.com",
+  projectId: "school-e429d",
+  storageBucket: "school-e429d.firebasestorage.app",
+  messagingSenderId: "881372767341",
+  appId: "1:881372767341:web:b3b66c431594b5c4a94b64",
+  measurementId: "G-B1DENGMX27"
+};
+
+// 後台密碼
+const ADMIN_PIN = "072929";
+
+// 等級門檻（依累積分，只升不降）
+const TIERS = [
+  { key: 0, min: 0,   name: "見習", color: "#8A94A6" },
+  { key: 1, min: 50,  name: "金輝", color: "#FFC53D" },
+  { key: 2, min: 150, name: "紫耀", color: "#A855F7" },
+  { key: 3, min: 250, name: "星焰", color: "#22D3EE" },
+  { key: 4, min: 450, name: "傳說", color: "#FF4D8D" }
+];
+
+function tierOf(total) {
+  let t = TIERS[0];
+  for (const x of TIERS) if ((total || 0) >= x.min) t = x;
+  return t;
+}
+function nextTier(total) {
+  for (const x of TIERS) if ((total || 0) < x.min) return x;
+  return null;
+}
+
+// 預設加減分理由（第一次開後台時會自動寫進 Firestore，之後在設定頁改）
+const DEFAULT_REASONS = {
+  add: [
+    { label: "舉手回答", points: 2 },
+    { label: "準時到班", points: 1 },
+    { label: "交作業",   points: 1 },
+    { label: "收拾整潔", points: 1 },
+    { label: "幫助同學", points: 2 },
+    { label: "特別表現", points: 3 }
+  ],
+  sub: [
+    { label: "干擾秩序", points: 2 },
+    { label: "遲到",     points: 1 },
+    { label: "沒交作業", points: 2 },
+    { label: "沒收拾",   points: 1 }
+  ]
+};
+
+// 轉盤預設獎品（weight = 扇形寬度 = 中獎機率；points > 0 會自動加進餘額）
+const DEFAULT_WHEEL = [
+  { label: "乖乖一包",     emoji: "🍪", weight: 5, points: 0  },
+  { label: "養樂多",       emoji: "🥤", weight: 5, points: 0  },
+  { label: "加 10 點",     emoji: "💰", weight: 4, points: 10 },
+  { label: "免寫作業一次", emoji: "📝", weight: 2, points: 0  },
+  { label: "加 30 點",     emoji: "💎", weight: 2, points: 30 },
+  { label: "自選大零食",   emoji: "🎁", weight: 1, points: 0  }
+];
+
+// 頭像選單
+const AVATARS = Array.from("🦊🐼🐧🐯🦁🐸🐵🐨🐰🐱🐶🐹🐢🦉🐙🦄🐷🐔🦖🐳🐝🦋🐬🦕");
+
+// 判斷是不是圖片：完整網址、相對路徑、或常見圖檔副檔名都算
+function isImg(v) {
+  const s = String(v || "").trim();
+  return /^https?:\/\//.test(s) || s.startsWith("/") || s.startsWith("./")
+      || /\.(png|jpe?g|webp|gif|svg|avif)$/i.test(s);
+}
+
+// 共用：是圖就吐 img，否則當 emoji
+function avatarHTML(a, cls = "") {
+  const v = String(a || "🙂").trim();
+  return isImg(v)
+    ? `<img class="av-img ${cls}" src="${v}" alt="" loading="lazy">`
+    : `<span class="av-emo ${cls}">${v}</span>`;
+}
+
+const esc = s => String(s ?? "").replace(/[<>&"]/g,
+  c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
+
+const ROSTER = [
+  ["韓丁暄","🦊"], ["程心","🐼"],   ["吳芊蔓","🐧"], ["藍以恩","🐯"],
+  ["吳允樂","🦁"], ["黃晨菲","🐸"], ["林芠均","🐰"], ["龔彧萱","🦉"],
+  ["邱禹程","🐵"], ["廖禹傑","🐨"], ["陳柏叡","🐶"], ["林彣睿","🐢"],
+  ["王穎晞","🦄"], ["李其樺","🐙"], ["陳晞","🐳"]
+];
+
+document.getElementById("preview").innerHTML =
+  ROSTER.map(([n,a]) => `<div class="s"><span>${a}</span>${n}</div>`).join("");
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const out = document.getElementById("out");
+const btn = document.getElementById("go");
+
+const ready = signInAnonymously(getAuth(app)).catch(e => {
+  out.textContent = "登入失敗：" + e.code +
+    "\n請到 Firebase Console → Authentication → Sign-in method → 啟用「匿名」";
+  btn.disabled = true;
+  throw e;
+});
+
+btn.onclick = async () => {
+  btn.disabled = true;
+  out.textContent = "檢查現有資料…\n";
+  try {
+    await ready;
+    const snap = await getDocs(collection(db, "students"));
+    const have = new Set(snap.docs.map(d => d.data().name));
+    let added = 0, skipped = 0;
+    for (const [name, avatar] of ROSTER) {
+      if (have.has(name)) { skipped++; out.textContent += `跳過 ${name}（已存在）\n`; continue; }
+      await addDoc(collection(db, "students"), { name, avatar, total: 0, wallet: 0 });
+      added++;
+      out.textContent += `已加入 ${avatar} ${name}\n`;
+    }
+    out.textContent += `\n完成：新增 ${added} 位、跳過 ${skipped} 位。\n`;
+    out.innerHTML += `<a href="./admin.html">→ 去後台</a>　<a href="./index.html">→ 看大螢幕</a>`;
+  } catch (e) {
+    out.textContent += "\n失敗：" + e.message;
+    btn.disabled = false;
+  }
+};
+</script>
+</body>
+</html>
