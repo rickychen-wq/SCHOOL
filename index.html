@@ -307,7 +307,7 @@ import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/1
 import { getFirestore, collection, doc, onSnapshot, updateDoc, addDoc,
   query, orderBy, limit, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { firebaseConfig, tierOf, nextTier, avatarHTML, esc, DEFAULT_WHEEL } from "./config.js";
+import { firebaseConfig, tierOf, nextTier, avatarHTML, esc, isImg, DEFAULT_WHEEL } from "./config.js";
 
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
@@ -506,8 +506,8 @@ onSnapshot(collection(db, "items"), snap => {
   shopGrid.innerHTML = list.map(i => {
     const isAv = i.type === "avatar";
     const out  = !isAv && (i.stock || 0) <= 0;
-    const ico  = /^https?:\/\//.test(i.emoji || "")
-      ? `<img src="${esc(i.emoji)}" alt="">` : (i.emoji || "🎁");
+    const ico  = isImg(i.emoji)
+      ? `<img src="${esc(i.emoji)}" alt="" loading="lazy">` : (i.emoji || "🎁");
     return `<div class="item ${isAv?"av":""} ${out?"out":""}">
       <div class="ico">${ico}</div>
       <div class="nm">${esc(i.name)}</div>
