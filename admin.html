@@ -199,6 +199,14 @@ nav div i{display:block;font-size:20px;font-style:normal;margin-bottom:2px}
     格數建議 6～8 個，太多字會擠。
   </div>
 
+  <h3>手動補發轉盤</h3>
+  <div class="field">
+    <label>選學生（會用他目前的等級發一張）</label>
+    <select id="spWho"><option value="">— 請選擇 —</option></select>
+  </div>
+  <button class="btn" id="spGo" style="width:100%">發一張轉盤到大螢幕</button>
+  <div class="hint">用來測試，或補發沒轉到的獎勵。</div>
+
   <h3>其他</h3>
   <button class="btn" id="expCsv" style="width:100%;margin-bottom:9px">匯出成績 CSV</button>
   <button class="btn red" id="resetAll" style="width:100%">全班歸零（累積分＋餘額）</button>
@@ -240,7 +248,7 @@ import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/1
 import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc,
   onSnapshot, query, orderBy, limit, serverTimestamp, getDoc }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { firebaseConfig, ADMIN_PIN, DEFAULT_REASONS, DEFAULT_WHEEL, AVATARS, tierOf, avatarHTML, esc }
+import { firebaseConfig, ADMIN_PIN, DEFAULT_REASONS, DEFAULT_WHEEL, AVATARS, tierOf, avatarHTML, esc, isImg }
   from "./config.js";
 
 const app = initializeApp(firebaseConfig);
@@ -369,18 +377,26 @@ async function apply(delta, reason){
 
   // 升級 → 丟一筆待轉紀錄，大螢幕會跳出轉盤（存在 Firestore，重整也不會掉）
   const before = tierOf(total), after = tierOf(nTotal);
-  if (after.key > before.key){
-    await addDoc(collection(db,"spins"), {
-      studentId:cur.id, studentName:cur.name,
-      tierKey:after.key, tierName:after.name,
-      status:"pending", at:serverTimestamp()
-    });
-    toast(`${cur.name} 升上 ${after.name}！去大螢幕轉盤`);
-  }
+  if (after.key > before.key) await makeSpin(cur.id, cur.name, after);
 
   cur = { ...cur, total:nTotal, wallet:nWallet };
   $("shSub").textContent = `可用 ${nWallet} 點 · 累積 ${nTotal} 分`;
   if (after.key === before.key) toast(`${cur.name} ${real >= 0 ? "+" : ""}${real}`);
+}
+
+async function makeSpin(sid, sname, tier){
+  try{
+    await addDoc(collection(db,"spins"), {
+      studentId:sid, studentName:sname,
+      tierKey:tier.key, tierName:tier.name,
+      status:"pending", at:serverTimestamp()
+    });
+    toast(`${sname} 升上 ${tier.name}！去大螢幕轉盤`);
+  }catch(e){
+    console.error(e);
+    alert("轉盤發不出去：" + e.code +
+      "\n\n多半是 Firestore 規則還沒加 spins 這個 collection，去 Console 重貼一次 firestore.rules。");
+  }
 }
 
 /* ---------- 商店頁 ---------- */
@@ -389,6 +405,11 @@ function renderBuyWho(){
   sel.innerHTML = `<option value="">— 請選擇 —</option>` +
     students.map(s => `<option value="${s.id}">${esc(s.name)}（${s.wallet||0} 點）</option>`).join("");
   sel.value = keep;
+
+  const sp = $("spWho"), keep2 = sp.value;
+  sp.innerHTML = `<option value="">— 請選擇 —</option>` +
+    students.map(x => `<option value="${x.id}">${esc(x.name)}（${tierOf(x.total||0).name}）</option>`).join("");
+  sp.value = keep2;
 }
 $("buyWho").onchange = renderBuyArea;
 
@@ -404,7 +425,7 @@ function renderBuyArea(){
       const isAv = i.type === "avatar";
       const out  = !isAv && (i.stock||0) <= 0;
       const poor = (s.wallet||0) < (i.price||0);
-      const ic = /^https?:\/\//.test(i.emoji||"") ? `<img src="${esc(i.emoji)}">` : (i.emoji||"🎁");
+      const ic = isImg(i.emoji) ? `<img src="${esc(i.emoji)}" loading="lazy">` : (i.emoji||"🎁");
       return `<div class="buy ${out||poor?"no":""}" data-buy="${out||poor?"":i.id}">
         <div class="ic">${ic}</div><div class="n">${esc(i.name)}</div>
         <div class="p">${i.price||0} 點</div>
@@ -450,7 +471,7 @@ $("itAdd").onclick = async () => {
 
 function renderItems(){
   $("itemList").innerHTML = items.length ? items.map(i => {
-    const ic = /^https?:\/\//.test(i.emoji||"") ? `<img src="${esc(i.emoji)}">` : (i.emoji||"🎁");
+    const ic = isImg(i.emoji) ? `<img src="${esc(i.emoji)}" loading="lazy">` : (i.emoji||"🎁");
     return `<div class="row">
       <div class="av">${ic}</div>
       <div class="info"><div class="nm">${esc(i.name)}</div>
@@ -549,6 +570,12 @@ $("wzSave").onclick = async () => {
   wheel = list;
   await setDoc(doc(db,"config","wheel"), { prizes: wheel });
   toast("轉盤已更新");
+};
+
+$("spGo").onclick = async () => {
+  const s = students.find(x => x.id === $("spWho").value);
+  if (!s) return toast("先選學生");
+  await makeSpin(s.id, s.name, tierOf(s.total||0));
 };
 
 $("expCsv").onclick = () => {
