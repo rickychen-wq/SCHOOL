@@ -62,11 +62,18 @@ export const DEFAULT_WHEEL = [
 // 頭像選單
 export const AVATARS = Array.from("🦊🐼🐧🐯🦁🐸🐵🐨🐰🐱🐶🐹🐢🦉🐙🦄🐷🐔🦖🐳🐝🦋🐬🦕");
 
-// 共用：頭像是網址就吐 img，否則當 emoji
+// 判斷是不是圖片：完整網址、相對路徑、或常見圖檔副檔名都算
+export function isImg(v) {
+  const s = String(v || "").trim();
+  return /^https?:\/\//.test(s) || s.startsWith("/") || s.startsWith("./")
+      || /\.(png|jpe?g|webp|gif|svg|avif)$/i.test(s);
+}
+
+// 共用：是圖就吐 img，否則當 emoji
 export function avatarHTML(a, cls = "") {
-  const v = a || "🙂";
-  return /^https?:\/\//.test(v)
-    ? `<img class="av-img ${cls}" src="${v}" alt="">`
+  const v = String(a || "🙂").trim();
+  return isImg(v)
+    ? `<img class="av-img ${cls}" src="${v}" alt="" loading="lazy">`
     : `<span class="av-emo ${cls}">${v}</span>`;
 }
 
