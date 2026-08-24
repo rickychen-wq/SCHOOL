@@ -307,7 +307,89 @@ import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/1
 import { getFirestore, collection, doc, onSnapshot, updateDoc, addDoc,
   query, orderBy, limit, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { firebaseConfig, tierOf, nextTier, avatarHTML, esc, isImg, DEFAULT_WHEEL } from "./config.js";
+
+/* ===== 設定（原 config.js，已內嵌，不再需要外部檔案）===== */
+// ===================== 共用設定 =====================
+const firebaseConfig = {
+  apiKey: "AIzaSyDrDK9sr3U1239BzbU7xMCc5QddYvCC34s",
+  authDomain: "school-e429d.firebaseapp.com",
+  projectId: "school-e429d",
+  storageBucket: "school-e429d.firebasestorage.app",
+  messagingSenderId: "881372767341",
+  appId: "1:881372767341:web:b3b66c431594b5c4a94b64",
+  measurementId: "G-B1DENGMX27"
+};
+
+// 後台密碼
+const ADMIN_PIN = "072929";
+
+// 等級門檻（依累積分，只升不降）
+const TIERS = [
+  { key: 0, min: 0,   name: "見習", color: "#8A94A6" },
+  { key: 1, min: 50,  name: "金輝", color: "#FFC53D" },
+  { key: 2, min: 150, name: "紫耀", color: "#A855F7" },
+  { key: 3, min: 250, name: "星焰", color: "#22D3EE" },
+  { key: 4, min: 450, name: "傳說", color: "#FF4D8D" }
+];
+
+function tierOf(total) {
+  let t = TIERS[0];
+  for (const x of TIERS) if ((total || 0) >= x.min) t = x;
+  return t;
+}
+function nextTier(total) {
+  for (const x of TIERS) if ((total || 0) < x.min) return x;
+  return null;
+}
+
+// 預設加減分理由（第一次開後台時會自動寫進 Firestore，之後在設定頁改）
+const DEFAULT_REASONS = {
+  add: [
+    { label: "舉手回答", points: 2 },
+    { label: "準時到班", points: 1 },
+    { label: "交作業",   points: 1 },
+    { label: "收拾整潔", points: 1 },
+    { label: "幫助同學", points: 2 },
+    { label: "特別表現", points: 3 }
+  ],
+  sub: [
+    { label: "干擾秩序", points: 2 },
+    { label: "遲到",     points: 1 },
+    { label: "沒交作業", points: 2 },
+    { label: "沒收拾",   points: 1 }
+  ]
+};
+
+// 轉盤預設獎品（weight = 扇形寬度 = 中獎機率；points > 0 會自動加進餘額）
+const DEFAULT_WHEEL = [
+  { label: "乖乖一包",     emoji: "🍪", weight: 5, points: 0  },
+  { label: "養樂多",       emoji: "🥤", weight: 5, points: 0  },
+  { label: "加 10 點",     emoji: "💰", weight: 4, points: 10 },
+  { label: "免寫作業一次", emoji: "📝", weight: 2, points: 0  },
+  { label: "加 30 點",     emoji: "💎", weight: 2, points: 30 },
+  { label: "自選大零食",   emoji: "🎁", weight: 1, points: 0  }
+];
+
+// 頭像選單
+const AVATARS = Array.from("🦊🐼🐧🐯🦁🐸🐵🐨🐰🐱🐶🐹🐢🦉🐙🦄🐷🐔🦖🐳🐝🦋🐬🦕");
+
+// 判斷是不是圖片：完整網址、相對路徑、或常見圖檔副檔名都算
+function isImg(v) {
+  const s = String(v || "").trim();
+  return /^https?:\/\//.test(s) || s.startsWith("/") || s.startsWith("./")
+      || /\.(png|jpe?g|webp|gif|svg|avif)$/i.test(s);
+}
+
+// 共用：是圖就吐 img，否則當 emoji
+function avatarHTML(a, cls = "") {
+  const v = String(a || "🙂").trim();
+  return isImg(v)
+    ? `<img class="av-img ${cls}" src="${v}" alt="" loading="lazy">`
+    : `<span class="av-emo ${cls}">${v}</span>`;
+}
+
+const esc = s => String(s ?? "").replace(/[<>&"]/g,
+  c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
 
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
