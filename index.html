@@ -43,7 +43,7 @@ nav{display:flex;gap:10px;margin-left:auto}
 .mini.on{color:var(--gold);border-color:rgba(255,197,61,.5)}
 .tools{display:flex;gap:8px;margin-left:14px}
 
-main{height:calc(100vh - 67px);padding:20px}
+main{height:calc(100vh - 67px);padding:10px}
 .page{display:none;height:100%}
 .page.on{display:block}
 
@@ -365,7 +365,7 @@ body.lowfx .ring{background:linear-gradient(135deg,#FF4D8D,#22D3EE)}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, doc, onSnapshot, updateDoc, addDoc, getDocs,
+import { getFirestore, collection, doc, onSnapshot, updateDoc, addDoc, getDocs, arrayUnion,
   query, orderBy, limit, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -580,8 +580,21 @@ async function openStudent(id){
   $("sSub").innerHTML  = `<b>${t.name}</b> · 累積 ${s.total || 0} 分`;
   $("sWal").textContent = s.wallet || 0;
 
-  // 擁有的頭像（含目前這顆，就算是預設 emoji 也留著讓他換回來）
-  const owned = Array.from(new Set([...(s.owned || []), s.avatar].filter(Boolean)));
+  // 擁有的頭像：欄位 + 目前這顆 + 從購買紀錄還原（owned 欄位是後來才加的，舊資料靠這裡補）
+  const logsAll = await loadLogs();
+  const mine = logsAll.filter(l => l.studentId === id);
+  const fromLogs = mine
+    .filter(l => l.kind === "buy")
+    .map(l => (String(l.reason || "").match(/兌換「(.+)」/) || [])[1])
+    .map(nm => avatarItemByName[nm])
+    .filter(Boolean);
+  const owned = Array.from(new Set([...(s.owned || []), ...fromLogs, s.avatar].filter(Boolean)));
+
+  // 補回來的順手寫進 Firestore，下次就不用再推算
+  const missing = owned.filter(a => !(s.owned || []).includes(a));
+  if (missing.length){
+    updateDoc(doc(db,"students",id), { owned: arrayUnion(...missing) }).catch(e => console.warn(e));
+  }
   $("sOwned").innerHTML = owned.length <= 1 && !isImg(s.avatar)
     ? `<div class="hnone">還沒有買過頭像，去商店換一個吧</div>`
     : owned.map(a => {
@@ -605,7 +618,7 @@ async function openStudent(id){
   $("sSpins").innerHTML = `<div class="hnone">載入中…</div>`;
   $("stuModal").classList.add("on");
 
-  const logs = (await loadLogs()).filter(l => l.studentId === id);
+  const logs = mine;
   const row = l => `<div class="hrow">
       <div class="hi">${l.kind === "spin" ? "🎡" : "🛒"}</div>
       <div class="ht">${esc(String(l.reason || "").replace(/^轉盤（.*?）：/, ""))}</div>
@@ -709,12 +722,14 @@ onSnapshot(collection(db, "students"), snap => {
 
 /* ================= 商店 ================= */
 const shopGrid = $("shopGrid");
+const avatarItemByName = {};   // 商品名稱 → 圖片路徑，用來還原買過的頭像
 function startShop(){
 onSnapshot(collection(db, "items"), snap => {
   const list = snap.docs.map(d => ({ id: d.id, ...d.data() }))
     .filter(i => i.active !== false)
     .sort((a,b) => (a.price||0) - (b.price||0));
   if (!list.length){ shopGrid.innerHTML = `<div class="empty">商店還沒上架東西</div>`; return; }
+  list.forEach(i => { if (i.type === "avatar" && i.name) avatarItemByName[i.name] = i.emoji; });
   shopGrid.innerHTML = list.map(i => {
     const isAv = i.type === "avatar";
     const out  = !isAv && (i.stock || 0) <= 0;
