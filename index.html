@@ -206,6 +206,51 @@ main{height:calc(100vh - 67px);padding:20px}
 @keyframes conf{0%{opacity:1;transform:translate(0,0) rotate(0)}
   100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rot))}}
 
+/* ================= 學生詳細 ================= */
+#stuModal{position:fixed;inset:0;z-index:110;display:none;place-items:center;padding:26px;
+  background:radial-gradient(circle,rgba(6,10,28,.82),rgba(0,0,0,.94));backdrop-filter:blur(5px)}
+#stuModal.on{display:grid;animation:fadein .25s}
+.sbox{width:min(1000px,94vw);max-height:88vh;overflow-y:auto;background:#0C1230;
+  border:1px solid var(--line);border-radius:26px;padding:26px 28px 30px;
+  animation:pop .4s cubic-bezier(.2,1.5,.4,1)}
+.shead{display:flex;align-items:center;gap:18px;margin-bottom:22px}
+.shead .sav{width:86px;height:86px;display:grid;place-items:center;border-radius:50%;
+  border:3px solid var(--tc);box-shadow:0 0 24px color-mix(in srgb,var(--tc) 45%,transparent);flex:0 0 auto}
+.shead .sav img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.shead .sav span{font-size:46px}
+.shead .snm{font-size:34px;font-weight:900;line-height:1.15}
+.shead .ssub{font-size:15px;color:var(--dim);margin-top:4px}
+.shead .ssub b{color:var(--tc)}
+.shead .sw{margin-left:auto;text-align:right}
+.shead .sw i{display:block;font-style:normal;font-size:12px;color:var(--dim);letter-spacing:2px}
+.shead .sw em{font-style:normal;font-family:"Chakra Petch",monospace;font-weight:700;
+  font-size:42px;color:var(--gold)}
+.sclose{margin-left:16px;padding:12px 20px;border:1px solid var(--line);border-radius:13px;
+  background:rgba(255,255,255,.06);color:var(--ink);font-family:inherit;font-weight:900;
+  font-size:16px;cursor:pointer;flex:0 0 auto}
+.sh3{font-size:13px;letter-spacing:3px;color:var(--dim);font-weight:700;
+  margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.avgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
+.avpick2{position:relative;background:#111838;border:2px solid var(--line);border-radius:16px;
+  padding:10px;text-align:center;cursor:pointer;transition:.15s}
+.avpick2:active{transform:scale(.95)}
+.avpick2.eq{border-color:var(--gold);box-shadow:0 0 20px rgba(255,197,61,.3)}
+.avpick2 img{width:100%;aspect-ratio:1;border-radius:50%;object-fit:cover;display:block}
+.avpick2 .em{font-size:44px;line-height:1.4}
+.avpick2 .eqtag{position:absolute;top:-9px;left:50%;transform:translateX(-50%);
+  background:var(--gold);color:#241500;font-size:11px;font-weight:900;
+  padding:2px 10px;border-radius:20px;white-space:nowrap}
+.hist{display:grid;gap:22px;grid-template-columns:1fr 1fr}
+.hcol h4{font-size:15px;font-weight:900;margin-bottom:10px;color:var(--ink)}
+.hrow{display:flex;align-items:center;gap:10px;background:#111838;border:1px solid var(--line);
+  border-radius:12px;padding:11px 13px;margin-bottom:7px;font-size:15px}
+.hrow .hi{font-size:22px;flex:0 0 auto}
+.hrow .ht{flex:1;min-width:0}
+.hrow .hd{font-family:"Chakra Petch",monospace;font-weight:700;color:var(--gold);flex:0 0 auto}
+.hrow .hw{font-size:11px;color:var(--dim);flex:0 0 auto}
+.hnone{color:var(--dim);font-size:14px;padding:14px 2px}
+@media (max-width:760px){.hist{grid-template-columns:1fr}}
+
 /* ================= 商店 ================= */
 #shopWrap{height:100%;overflow-y:auto;padding-right:6px}
 #shopGrid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
@@ -289,6 +334,22 @@ body.lowfx .ring{background:linear-gradient(135deg,#FF4D8D,#22D3EE)}
   <section class="page" id="p-shop"><div id="shopWrap"><div id="shopGrid"></div></div></section>
 </main>
 
+<div id="stuModal"><div class="sbox" id="sbox">
+  <div class="shead">
+    <div class="sav" id="sAv"></div>
+    <div><div class="snm" id="sNm"></div><div class="ssub" id="sSub"></div></div>
+    <div class="sw"><i>可用點數</i><em id="sWal">0</em></div>
+    <button class="sclose" id="sClose">關閉</button>
+  </div>
+  <div class="sh3">我的頭像 · 點一下就換</div>
+  <div class="avgrid" id="sOwned"></div>
+  <div class="sh3">紀錄</div>
+  <div class="hist">
+    <div class="hcol"><h4>🛒 買過的東西</h4><div id="sBuys"></div></div>
+    <div class="hcol"><h4>🎡 轉盤抽到的</h4><div id="sSpins"></div></div>
+  </div>
+</div></div>
+
 <div id="wheelWrap"><div class="wbox">
   <div class="wtag">LEVEL UP</div>
   <div class="wwho"><span id="wName"></span> 升級到 <b id="wTier"></b></div>
@@ -304,7 +365,7 @@ body.lowfx .ring{background:linear-gradient(135deg,#FF4D8D,#22D3EE)}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, doc, onSnapshot, updateDoc, addDoc,
+import { getFirestore, collection, doc, onSnapshot, updateDoc, addDoc, getDocs,
   query, orderBy, limit, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -488,8 +549,77 @@ function shell(s){
     </div>
     <div class="bar"><i></i></div>
     <div class="flash"></div><div class="wave"></div><div class="fx"></div>`;
+  el.addEventListener("click", () => openStudent(s.id));
   return el;
 }
+
+/* ---------- 學生詳細頁 ---------- */
+let logCache = [], logAt = 0;
+async function loadLogs(){
+  if (Date.now() - logAt < 20000 && logCache.length) return logCache;
+  try{
+    const snap = await getDocs(query(collection(db,"logs"), orderBy("at","desc"), limit(300)));
+    logCache = snap.docs.map(d => d.data());
+    logAt = Date.now();
+  }catch(e){ console.warn(e); }
+  return logCache;
+}
+
+function when(ts){
+  try{ const d = ts.toDate(); return `${d.getMonth()+1}/${d.getDate()}`; }catch(e){ return ""; }
+}
+
+async function openStudent(id){
+  const s = byId[id]; if (!s) return;
+  const t = tierOf(s.total || 0);
+  const box = $("sbox");
+  box.style.setProperty("--tc", t.color);
+
+  $("sAv").innerHTML = avatarHTML(s.avatar);
+  $("sNm").textContent = s.name;
+  $("sSub").innerHTML  = `<b>${t.name}</b> · 累積 ${s.total || 0} 分`;
+  $("sWal").textContent = s.wallet || 0;
+
+  // 擁有的頭像（含目前這顆，就算是預設 emoji 也留著讓他換回來）
+  const owned = Array.from(new Set([...(s.owned || []), s.avatar].filter(Boolean)));
+  $("sOwned").innerHTML = owned.length <= 1 && !isImg(s.avatar)
+    ? `<div class="hnone">還沒有買過頭像，去商店換一個吧</div>`
+    : owned.map(a => {
+        const eq = a === s.avatar;
+        const inner = isImg(a) ? `<img src="${esc(a)}" alt="">` : `<div class="em">${a}</div>`;
+        return `<div class="avpick2 ${eq?"eq":""}" data-av="${esc(a)}">
+          ${eq ? `<div class="eqtag">使用中</div>` : ""}${inner}</div>`;
+      }).join("");
+
+  $("sOwned").querySelectorAll("[data-av]").forEach(el => el.onclick = async () => {
+    const av = el.dataset.av;
+    if (av === byId[id].avatar) return;
+    try{
+      await updateDoc(doc(db,"students",id), { avatar: av });
+      sfxUp();
+      setTimeout(() => openStudent(id), 350);
+    }catch(e){ console.error(e); }
+  });
+
+  $("sBuys").innerHTML = `<div class="hnone">載入中…</div>`;
+  $("sSpins").innerHTML = `<div class="hnone">載入中…</div>`;
+  $("stuModal").classList.add("on");
+
+  const logs = (await loadLogs()).filter(l => l.studentId === id);
+  const row = l => `<div class="hrow">
+      <div class="hi">${l.kind === "spin" ? "🎡" : "🛒"}</div>
+      <div class="ht">${esc(String(l.reason || "").replace(/^轉盤（.*?）：/, ""))}</div>
+      ${l.delta ? `<div class="hd">${l.delta > 0 ? "+" : ""}${l.delta}</div>` : ""}
+      <div class="hw">${when(l.at)}</div>
+    </div>`;
+  const buys  = logs.filter(l => l.kind === "buy");
+  const spins = logs.filter(l => l.kind === "spin");
+  $("sBuys").innerHTML  = buys.length  ? buys.map(row).join("")  : `<div class="hnone">還沒買過東西</div>`;
+  $("sSpins").innerHTML = spins.length ? spins.map(row).join("") : `<div class="hnone">還沒轉過轉盤</div>`;
+}
+
+$("sClose").onclick = () => $("stuModal").classList.remove("on");
+$("stuModal").onclick = e => { if (e.target.id === "stuModal") $("stuModal").classList.remove("on"); };
 
 function paint(el, s){
   const total = s.total || 0, wallet = s.wallet || 0;
@@ -688,6 +818,7 @@ $("wTake").onclick = async () => {
       reason: `轉盤（${sp.tierName}）：${pz.label}`, kind: "spin", at: serverTimestamp()
     });
   }catch(e){ console.error(e); }
+  logAt = 0;
   setTimeout(next, 600);
 };
 
