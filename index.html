@@ -48,7 +48,7 @@ main{height:calc(100vh - 61px);padding:10px}
 .card{position:relative;border-radius:22px;overflow:hidden;cursor:pointer;
   background:linear-gradient(165deg,#141B3D,#0B1029);
   border:2px solid rgba(255,255,255,.10);min-height:0;min-width:0;
-  transition:transform .3s cubic-bezier(.2,1.4,.4,1);contain:paint}
+  transition:transform .3s cubic-bezier(.2,1.4,.4,1)}
 .body{position:relative;z-index:6;height:100%;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:2px;padding:10px 8px 14px}
 .name{font-size:clamp(16px,2.2vh,24px);font-weight:900;letter-spacing:1px;white-space:nowrap;margin-top:4px}
@@ -81,27 +81,22 @@ main{height:calc(100vh - 61px);padding:10px}
 .t2 .halo,.t3 .halo,.t4 .halo{display:block}
 .halo::before{content:"";position:absolute;inset:0;border-radius:50%;
   background:conic-gradient(from 0deg,#A855F7,#22D3EE,#FF4D8D,#FFC53D,#A855F7);
-  filter:blur(26px);opacity:.30;will-change:transform;animation:spin 7s linear infinite}
+  filter:blur(26px);opacity:.30;animation:spin 7s linear infinite}
 .t3 .halo::before{animation-duration:5s;opacity:.34}
-.t4 .halo::before{animation-duration:3.6s;opacity:.42}
+.t4 .halo::before{animation-duration:3.6s;opacity:.40}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.ring{display:none;position:absolute;inset:0;border-radius:22px;padding:2px;z-index:5;
-  pointer-events:none;overflow:hidden;
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
-  -webkit-mask-composite:xor;mask-composite:exclude}
-.t2 .ring,.t3 .ring,.t4 .ring{display:block}
-.ring i{position:absolute;left:50%;top:50%;width:170%;aspect-ratio:1;
-  transform:translate(-50%,-50%);transform-origin:50% 50%;will-change:transform;
+.ring{display:none;position:absolute;inset:0;border-radius:22px;padding:2px;z-index:5;pointer-events:none;
   background:conic-gradient(from 0deg,#FF4D8D,#FFC53D,#4ADE80,#22D3EE,#A855F7,#FF4D8D);
-  animation:ringspin 4s linear infinite}
-@keyframes ringspin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;animation:hue 4s linear infinite}
+.t2 .ring,.t3 .ring,.t4 .ring{display:block}
+@keyframes hue{to{filter:hue-rotate(360deg)}}
 
 .pc{display:none;position:absolute;inset:0;overflow:hidden;z-index:2;pointer-events:none}
 .t3 .pc,.t4 .pc{display:block}
 .pc i{position:absolute;bottom:-8px;width:5px;height:5px;border-radius:50%;background:var(--tc);
-  box-shadow:0 0 10px var(--tc);will-change:transform,opacity;
-  animation:rise 3.2s linear infinite}
+  box-shadow:0 0 10px var(--tc);animation:rise 3.2s linear infinite}
 @keyframes rise{0%{transform:translateY(0) scale(.6);opacity:0}
   15%{opacity:1}100%{transform:translateY(-200px) scale(1.2);opacity:0}}
 
@@ -111,7 +106,7 @@ main{height:calc(100vh - 61px);padding:10px}
 @keyframes flow{to{background-position:300% 0}}
 .scan{display:none;position:absolute;left:0;right:0;top:0;height:32%;z-index:5;pointer-events:none;
   background:linear-gradient(180deg,transparent,rgba(255,255,255,.16),transparent);
-  will-change:transform;animation:sweepy 3.2s ease-in-out infinite}
+  animation:sweepy 3.2s ease-in-out infinite}
 .t4 .scan{display:block}
 @keyframes sweepy{0%{transform:translateY(-120%)}60%,100%{transform:translateY(420%)}}
 
@@ -227,10 +222,10 @@ main{height:calc(100vh - 61px);padding:10px}
 .wbtn.on{opacity:1;pointer-events:auto}
 
 body.lowfx .halo::before,body.lowfx .pc,body.lowfx .scan,body.lowfx #stars i,
-body.lowfx .t1,body.lowfx .t4 .name,body.lowfx .ring i{animation:none!important}
+body.lowfx .t1,body.lowfx .t4 .name,body.lowfx .ring{animation:none!important}
 body.lowfx .pc{display:none!important}
 body.lowfx .t4 .name{-webkit-text-fill-color:var(--ink);color:var(--ink)}
-body.lowfx .ring i{background:linear-gradient(135deg,#FF4D8D,#22D3EE)}
+body.lowfx .ring{background:linear-gradient(135deg,#FF4D8D,#22D3EE)}
 body.lowfx .halo{display:none!important}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important}}
 </style>
@@ -415,7 +410,7 @@ function shell(s){
   el.dataset.id = s.id;
   el.innerHTML = `
     <div class="halo"></div><div class="pc">${parts}</div>
-    <div class="scan"></div><div class="ring"><i></i></div>
+    <div class="scan"></div><div class="ring"></div>
     <div class="body">
       <div class="avwrap"><div class="avslot">${avatarHTML(s.avatar)}</div></div>
       <div class="name"></div><div class="pts"></div>
