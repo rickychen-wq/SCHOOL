@@ -246,7 +246,7 @@ nav div i{display:block;font-size:20px;font-style:normal;margin-bottom:2px}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc,
-  onSnapshot, query, orderBy, limit, serverTimestamp, getDoc }
+  onSnapshot, query, orderBy, limit, serverTimestamp, getDoc, arrayUnion }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* ===== 設定（原 config.js，已內嵌，不再需要外部檔案）===== */
@@ -526,7 +526,10 @@ async function doBuy(sid, iid){
   if (!confirm(`確定讓 ${s.name} 用 ${i.price} 點換「${i.name}」？`)) return;
 
   const patch = { wallet: (s.wallet||0) - (i.price||0) };
-  if (i.type === "avatar") patch.avatar = i.emoji;
+  if (i.type === "avatar"){
+    patch.avatar = i.emoji;
+    patch.owned  = arrayUnion(i.emoji);   // 收進他的頭像收藏，之後可以自己換回來
+  }
   await updateDoc(doc(db,"students",sid), patch);
   if (i.type !== "avatar") await updateDoc(doc(db,"items",iid), { stock: Math.max(0,(i.stock||0)-1) });
   await addDoc(collection(db,"logs"), {
