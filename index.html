@@ -8,135 +8,84 @@
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#070B1C; --line:rgba(255,255,255,.10);
-  --ink:#EEF2FF; --dim:#8C97B8;
-  --stone:#8A94A6; --gold:#FFC53D; --violet:#A855F7; --cyan:#22D3EE; --legend:#FF4D8D;
-  --plus:#4ADE80; --minus:#FB7185;
+  --bg:#070B1C;--line:rgba(255,255,255,.10);--ink:#EEF2FF;--dim:#8C97B8;
+  --stone:#8A94A6;--gold:#FFC53D;--violet:#A855F7;--cyan:#22D3EE;--legend:#FF4D8D;
+  --plus:#4ADE80;--minus:#FB7185;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{
-  background:
+body{background:
     radial-gradient(1200px 700px at 15% -10%,#1B2455 0%,transparent 60%),
-    radial-gradient(900px 600px at 90% 110%,#2A1240 0%,transparent 60%),
-    var(--bg);
+    radial-gradient(900px 600px at 90% 110%,#2A1240 0%,transparent 60%),var(--bg);
   color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;
-  overflow:hidden;user-select:none;-webkit-tap-highlight-color:transparent;
-}
+  overflow:hidden;user-select:none;-webkit-tap-highlight-color:transparent}
 #stars{position:fixed;inset:0;pointer-events:none;opacity:.55}
 #stars i{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;
   animation:twinkle 4s ease-in-out infinite}
 @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.9}}
 
-header{display:flex;align-items:center;gap:18px;padding:12px 24px;
+header{display:flex;align-items:center;gap:18px;padding:10px 18px;
   border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.04),transparent)}
 .brand{display:flex;align-items:baseline;gap:12px}
-.brand h1{font-size:26px;font-weight:900;letter-spacing:3px}
+.brand h1{font-size:24px;font-weight:900;letter-spacing:3px}
 .brand small{font-family:"Chakra Petch",monospace;color:var(--dim);letter-spacing:3px;font-size:12px}
 nav{display:flex;gap:10px;margin-left:auto}
-.tab{font-size:20px;font-weight:900;padding:11px 30px;border-radius:14px;cursor:pointer;
+.tab{font-size:19px;font-weight:900;padding:10px 28px;border-radius:14px;cursor:pointer;
   background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--dim);transition:.18s}
 .tab.on{background:linear-gradient(135deg,#FFC53D,#FF8A3D);color:#241500;border-color:transparent;
   box-shadow:0 6px 24px rgba(255,180,60,.35)}
 .mini{font-size:13px;padding:9px 12px;border-radius:10px;background:rgba(255,255,255,.05);
   border:1px solid var(--line);color:var(--dim);cursor:pointer;font-family:"Chakra Petch",monospace}
 .mini.on{color:var(--gold);border-color:rgba(255,197,61,.5)}
-.tools{display:flex;gap:8px;margin-left:14px}
+.tools{display:flex;gap:8px;margin-left:12px}
 
-main{height:calc(100vh - 67px);padding:10px}
+main{height:calc(100vh - 61px);padding:10px}
 .page{display:none;height:100%}
 .page.on{display:block}
 
-/* ================= 卡片 ================= */
-#grid{height:100%;display:grid;gap:14px;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));grid-auto-rows:1fr}
-.card{position:relative;border-radius:22px;overflow:hidden;
+/* ===== 卡片 ===== */
+#grid{height:100%;display:grid;gap:10px;align-content:stretch}
+.card{position:relative;border-radius:22px;overflow:hidden;cursor:pointer;
   background:linear-gradient(165deg,#141B3D,#0B1029);
-  border:2px solid rgba(255,255,255,.10);min-height:145px;
-  transition:transform .3s cubic-bezier(.2,1.4,.4,1),box-shadow .4s}
-.body{position:relative;z-index:6;height:100%;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 10px 16px}
+  border:2px solid rgba(255,255,255,.10);min-height:0;min-width:0;
+  transition:transform .3s cubic-bezier(.2,1.4,.4,1)}
+.body{position:relative;z-index:6;height:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;padding:10px 8px 14px}
 .name{font-size:clamp(16px,2.2vh,24px);font-weight:900;letter-spacing:1px;white-space:nowrap;margin-top:4px}
 .pts{font-family:"Chakra Petch",monospace;font-weight:700;font-size:clamp(28px,4.6vh,50px);
   line-height:1.05;color:var(--tc);text-shadow:0 0 22px color-mix(in srgb,var(--tc) 60%,transparent)}
 .meta{font-size:12px;letter-spacing:2px;color:var(--tc);opacity:.95;font-weight:700}
 .meta b{color:var(--dim);font-weight:500;letter-spacing:0}
-.goal{font-size:11px;color:var(--dim);margin-top:5px}
+.goal{font-size:11px;color:var(--dim);margin-top:4px}
 .bar{position:absolute;left:0;bottom:0;width:100%;height:4px;background:rgba(255,255,255,.07);z-index:6}
 .bar i{display:block;height:100%;background:var(--tc);box-shadow:0 0 12px var(--tc);transition:width .6s}
 
-/* G 頭像底座 */
-.avwrap{position:relative;width:clamp(56px,7.2vh,88px);height:clamp(56px,7.2vh,88px);
-  display:grid;place-items:center;--r:calc(clamp(56px,7.2vh,88px) / 2 + 7px)}
-.avring{position:absolute;inset:0;border-radius:50%;
-  border:2px solid color-mix(in srgb,var(--tc) 55%,transparent);
-  background:radial-gradient(circle,color-mix(in srgb,var(--tc) 16%,transparent),transparent 70%)}
-.t1 .avring,.t2 .avring,.t3 .avring,.t4 .avring{
-  box-shadow:0 0 16px color-mix(in srgb,var(--tc) 45%,transparent),
-             inset 0 0 12px color-mix(in srgb,var(--tc) 30%,transparent);
-  animation:ringpulse 2.8s ease-in-out infinite}
-@keyframes ringpulse{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.06);opacity:1}}
-.av-emo{font-size:clamp(28px,3.9vh,48px);line-height:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.6))}
-.av-img{width:78%;height:78%;border-radius:50%;object-fit:cover}
+/* 頭像：圖片填滿整個圓框 */
+.avwrap{position:relative;width:clamp(58px,7.8vh,94px);height:clamp(58px,7.8vh,94px);
+  display:grid;place-items:center;border-radius:50%;overflow:hidden;flex:0 0 auto;
+  border:2px solid color-mix(in srgb,var(--tc) 60%,transparent);
+  box-shadow:0 0 16px color-mix(in srgb,var(--tc) 35%,transparent)}
+.av-emo{font-size:clamp(32px,4.6vh,56px);line-height:1}
+.av-img{width:100%;height:100%;object-fit:cover;display:block}
 
-/* E 星軌（傳說） */
-.orbit{display:none;position:absolute;inset:0;animation:spin 6s linear infinite}
-.t4 .orbit{display:block}
-.orbit i{position:absolute;top:50%;left:50%;width:7px;height:7px;margin:-3.5px;border-radius:50%;
-  background:#fff;box-shadow:0 0 10px #fff,0 0 20px var(--legend)}
-.orbit i:nth-child(1){transform:rotate(0deg) translateY(calc(var(--r) * -1))}
-.orbit i:nth-child(2){transform:rotate(120deg) translateY(calc(var(--r) * -1))}
-.orbit i:nth-child(3){transform:rotate(240deg) translateY(calc(var(--r) * -1))}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* 顏色 */
 .t0{--tc:var(--stone)}
 .t1{--tc:var(--gold);border-color:rgba(255,197,61,.55);animation:breathe 3.4s ease-in-out infinite}
 @keyframes breathe{
-  0%,100%{box-shadow:0 0 0 1px rgba(255,197,61,.18),0 0 30px rgba(255,197,61,.10) inset}
-  50%{box-shadow:0 0 0 1px rgba(255,197,61,.5),0 0 50px rgba(255,197,61,.28) inset,0 0 26px rgba(255,197,61,.22)}}
+  0%,100%{box-shadow:0 0 0 1px rgba(255,197,61,.2),0 0 30px rgba(255,197,61,.12) inset}
+  50%{box-shadow:0 0 0 1px rgba(255,197,61,.5),0 0 50px rgba(255,197,61,.3) inset,0 0 26px rgba(255,197,61,.25)}}
 .t2{--tc:var(--violet);border-color:transparent}
 .t3{--tc:var(--cyan);border-color:transparent}
-.t4{--tc:var(--legend);border-color:transparent}
+.t4{--tc:var(--legend);border-color:transparent;box-shadow:0 0 44px rgba(255,77,141,.30)}
 
-/* A 見習織紋 */
-.weave{display:none;position:absolute;inset:0;z-index:1;pointer-events:none;
-  background:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 2px,transparent 2px 9px)}
-.t0 .weave{display:block}
-.t0 .pts{opacity:.85}
-
-/* B 金屬掃光 + 碎閃 */
-.sheen{display:none;position:absolute;top:-40%;bottom:-40%;left:0;right:0;z-index:3;pointer-events:none;
-  background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.42) 50%,transparent 58%);
-  transform:translateX(-130%);animation:sweepx 5.5s ease-in-out infinite}
-.t1 .sheen,.t2 .sheen,.t3 .sheen,.t4 .sheen{display:block}
-@keyframes sweepx{0%,62%{transform:translateX(-130%) skewX(-12deg)}100%{transform:translateX(130%) skewX(-12deg)}}
-.spark{display:none;position:absolute;inset:0;z-index:4;pointer-events:none}
-.t1 .spark,.t2 .spark,.t3 .spark,.t4 .spark{display:block}
-.spark i{position:absolute;width:4px;height:4px;border-radius:50%;background:#fff;
-  box-shadow:0 0 8px var(--tc);animation:blink 2.6s ease-in-out infinite}
-@keyframes blink{0%,100%{transform:scale(0);opacity:0}45%{transform:scale(1.4);opacity:1}}
-
-/* C 閃卡彩虹膜 */
-.holo{display:none;position:absolute;inset:0;z-index:2;pointer-events:none;mix-blend-mode:screen;
-  opacity:.42;background:repeating-linear-gradient(115deg,
-    rgba(255,0,128,.30) 0%,rgba(255,190,0,.30) 7%,rgba(0,255,170,.30) 14%,
-    rgba(0,150,255,.30) 21%,rgba(170,0,255,.30) 28%,rgba(255,0,128,.30) 35%);
-  background-size:280% 280%;animation:holo 9s ease-in-out infinite}
-.t2 .holo,.t3 .holo,.t4 .holo{display:block}
-.t4 .holo{opacity:.55;animation-duration:6s}
-@keyframes holo{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-
-/* 背後光暈 */
 .halo{display:none;position:absolute;inset:-60%;z-index:0;pointer-events:none}
 .t2 .halo,.t3 .halo,.t4 .halo{display:block}
 .halo::before{content:"";position:absolute;inset:0;border-radius:50%;
   background:conic-gradient(from 0deg,#A855F7,#22D3EE,#FF4D8D,#FFC53D,#A855F7);
-  filter:blur(26px);opacity:.28;animation:spin 7s linear infinite}
-.t3 .halo::before{animation-duration:5s;opacity:.32}
-.t4 .halo::before{animation-duration:3.6s;opacity:.40}
+  filter:blur(26px);opacity:.30;animation:spin 7s linear infinite}
+.t3 .halo::before{animation-duration:5s;opacity:.34}
+.t4 .halo::before{animation-duration:3.6s;opacity:.42}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* RGB 邊框 */
 .ring{display:none;position:absolute;inset:0;border-radius:22px;padding:2px;z-index:5;pointer-events:none;
   background:conic-gradient(from 0deg,#FF4D8D,#FFC53D,#4ADE80,#22D3EE,#A855F7,#FF4D8D);
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
@@ -144,38 +93,13 @@ main{height:calc(100vh - 67px);padding:10px}
 .t2 .ring,.t3 .ring,.t4 .ring{display:block}
 @keyframes hue{to{filter:hue-rotate(360deg)}}
 
-/* D 粒子 + 餘燼 */
 .pc{display:none;position:absolute;inset:0;overflow:hidden;z-index:2;pointer-events:none}
 .t3 .pc,.t4 .pc{display:block}
-.pc i{position:absolute;bottom:-8px;border-radius:50%;background:var(--tc);
-  box-shadow:0 0 8px var(--tc);animation:rise linear infinite}
-.pc i::after{content:"";position:absolute;left:50%;top:100%;width:1px;height:16px;
-  transform:translateX(-50%);
-  background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 70%,transparent),transparent)}
-@keyframes rise{0%{transform:translateY(0) scale(.5);opacity:0}
-  12%{opacity:1}85%{opacity:.8}100%{transform:translateY(-210px) scale(1.15);opacity:0}}
-.embers{display:none;position:absolute;left:0;right:0;bottom:0;height:45%;z-index:1;pointer-events:none;
-  background:radial-gradient(ellipse at 50% 130%,color-mix(in srgb,var(--tc) 42%,transparent),transparent 70%);
-  animation:emb 3.6s ease-in-out infinite}
-.t3 .embers,.t4 .embers{display:block}
-@keyframes emb{0%,100%{opacity:.45}50%{opacity:.9}}
+.pc i{position:absolute;bottom:-8px;width:5px;height:5px;border-radius:50%;background:var(--tc);
+  box-shadow:0 0 10px var(--tc);animation:rise 3.2s linear infinite}
+@keyframes rise{0%{transform:translateY(0) scale(.6);opacity:0}
+  15%{opacity:1}100%{transform:translateY(-200px) scale(1.2);opacity:0}}
 
-/* E 傳說：切角框 + 角標 + 放射光束 */
-.t4{border-radius:0;transform:translateY(-4px);box-shadow:0 18px 44px rgba(255,77,141,.30);
-  clip-path:polygon(20px 0,100% 0,100% calc(100% - 20px),calc(100% - 20px) 100%,0 100%,0 20px)}
-.t4 .ring{border-radius:0}
-.brk{display:none;position:absolute;inset:6px;z-index:5;pointer-events:none}
-.t4 .brk{display:block}
-.brk::before,.brk::after{content:"";position:absolute;width:26px;height:26px;border:2px solid var(--legend);
-  box-shadow:0 0 10px var(--legend)}
-.brk::before{top:0;right:0;border-left:0;border-bottom:0}
-.brk::after{bottom:0;left:0;border-right:0;border-top:0}
-.beams{display:none;position:absolute;inset:-40%;z-index:0;pointer-events:none;
-  background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.13) 0deg 2.5deg,transparent 2.5deg 17deg);
-  -webkit-mask:radial-gradient(circle,transparent 18%,#000 42%,transparent 72%);
-  mask:radial-gradient(circle,transparent 18%,#000 42%,transparent 72%);
-  animation:spin 22s linear infinite}
-.t4 .beams{display:block}
 .t4 .name{background:linear-gradient(90deg,#fff,#FFC53D,#FF4D8D,#22D3EE,#fff);
   background-size:300% 100%;-webkit-background-clip:text;background-clip:text;
   color:transparent;animation:flow 3s linear infinite}
@@ -186,7 +110,6 @@ main{height:calc(100vh - 67px);padding:10px}
 .t4 .scan{display:block}
 @keyframes sweepy{0%{transform:translateY(-120%)}60%,100%{transform:translateY(420%)}}
 
-/* 飄字 / F 爆閃光波 / 彩帶 */
 .fx{position:absolute;inset:0;z-index:9;pointer-events:none;overflow:hidden}
 .card.hit{transform:scale(1.07)}
 .float{position:absolute;left:50%;top:38%;font-family:"Chakra Petch",monospace;font-weight:700;
@@ -196,35 +119,32 @@ main{height:calc(100vh - 67px);padding:10px}
   100%{opacity:0;transform:translate(-50%,-90px) scale(1)}}
 .flash{position:absolute;inset:0;z-index:8;background:#fff;opacity:0;pointer-events:none}
 .card.lv .flash{animation:bang .7s ease-out}
-@keyframes bang{0%{opacity:0}8%{opacity:.9}100%{opacity:0}}
+@keyframes bang{0%{opacity:0}8%{opacity:.85}100%{opacity:0}}
 .wave{position:absolute;left:50%;top:50%;width:20px;height:20px;margin:-10px;border-radius:50%;
   border:3px solid var(--tc);opacity:0;z-index:8;pointer-events:none}
 .card.lv .wave{animation:wave 1.1s ease-out}
 @keyframes wave{0%{opacity:.95;transform:scale(.4)}100%{opacity:0;transform:scale(16)}}
-.conf{position:absolute;top:48%;left:50%;width:8px;height:14px;border-radius:2px;
-  animation:conf 1.5s ease-out forwards}
-@keyframes conf{0%{opacity:1;transform:translate(0,0) rotate(0)}
-  100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rot))}}
 
-/* ================= 學生詳細 ================= */
+/* ===== 學生詳細 ===== */
 #stuModal{position:fixed;inset:0;z-index:110;display:none;place-items:center;padding:26px;
   background:radial-gradient(circle,rgba(6,10,28,.82),rgba(0,0,0,.94));backdrop-filter:blur(5px)}
 #stuModal.on{display:grid;animation:fadein .25s}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
 .sbox{width:min(1000px,94vw);max-height:88vh;overflow-y:auto;background:#0C1230;
   border:1px solid var(--line);border-radius:26px;padding:26px 28px 30px;
   animation:pop .4s cubic-bezier(.2,1.5,.4,1)}
-.shead{display:flex;align-items:center;gap:18px;margin-bottom:22px}
-.shead .sav{width:86px;height:86px;display:grid;place-items:center;border-radius:50%;
+@keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+.shead{display:flex;align-items:center;gap:18px;margin-bottom:14px}
+.shead .sav{width:88px;height:88px;border-radius:50%;overflow:hidden;display:grid;place-items:center;
   border:3px solid var(--tc);box-shadow:0 0 24px color-mix(in srgb,var(--tc) 45%,transparent);flex:0 0 auto}
-.shead .sav img{width:100%;height:100%;border-radius:50%;object-fit:cover}
-.shead .sav span{font-size:46px}
-.shead .snm{font-size:34px;font-weight:900;line-height:1.15}
-.shead .ssub{font-size:15px;color:var(--dim);margin-top:4px}
-.shead .ssub b{color:var(--tc)}
-.shead .sw{margin-left:auto;text-align:right}
-.shead .sw i{display:block;font-style:normal;font-size:12px;color:var(--dim);letter-spacing:2px}
-.shead .sw em{font-style:normal;font-family:"Chakra Petch",monospace;font-weight:700;
-  font-size:42px;color:var(--gold)}
+.shead .sav img{width:100%;height:100%;object-fit:cover}
+.shead .sav span{font-size:48px}
+.snm{font-size:34px;font-weight:900;line-height:1.15}
+.ssub{font-size:15px;color:var(--dim);margin-top:4px}
+.ssub b{color:var(--tc)}
+.sw{margin-left:auto;text-align:right}
+.sw i{display:block;font-style:normal;font-size:12px;color:var(--dim);letter-spacing:2px}
+.sw em{font-style:normal;font-family:"Chakra Petch",monospace;font-weight:700;font-size:42px;color:var(--gold)}
 .sclose{margin-left:16px;padding:12px 20px;border:1px solid var(--line);border-radius:13px;
   background:rgba(255,255,255,.06);color:var(--ink);font-family:inherit;font-weight:900;
   font-size:16px;cursor:pointer;flex:0 0 auto}
@@ -232,16 +152,15 @@ main{height:calc(100vh - 67px);padding:10px}
   margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
 .avgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
 .avpick2{position:relative;background:#111838;border:2px solid var(--line);border-radius:16px;
-  padding:10px;text-align:center;cursor:pointer;transition:.15s}
+  padding:8px;text-align:center;cursor:pointer;transition:.15s}
 .avpick2:active{transform:scale(.95)}
 .avpick2.eq{border-color:var(--gold);box-shadow:0 0 20px rgba(255,197,61,.3)}
 .avpick2 img{width:100%;aspect-ratio:1;border-radius:50%;object-fit:cover;display:block}
-.avpick2 .em{font-size:44px;line-height:1.4}
-.avpick2 .eqtag{position:absolute;top:-9px;left:50%;transform:translateX(-50%);
-  background:var(--gold);color:#241500;font-size:11px;font-weight:900;
-  padding:2px 10px;border-radius:20px;white-space:nowrap}
+.avpick2 .em{font-size:46px;line-height:1.5}
+.avpick2 .eqtag{position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--gold);
+  color:#241500;font-size:11px;font-weight:900;padding:2px 10px;border-radius:20px;white-space:nowrap}
 .hist{display:grid;gap:22px;grid-template-columns:1fr 1fr}
-.hcol h4{font-size:15px;font-weight:900;margin-bottom:10px;color:var(--ink)}
+.hcol h4{font-size:15px;font-weight:900;margin-bottom:10px}
 .hrow{display:flex;align-items:center;gap:10px;background:#111838;border:1px solid var(--line);
   border-radius:12px;padding:11px 13px;margin-bottom:7px;font-size:15px}
 .hrow .hi{font-size:22px;flex:0 0 auto}
@@ -251,14 +170,14 @@ main{height:calc(100vh - 67px);padding:10px}
 .hnone{color:var(--dim);font-size:14px;padding:14px 2px}
 @media (max-width:760px){.hist{grid-template-columns:1fr}}
 
-/* ================= 商店 ================= */
+/* ===== 商店 ===== */
 #shopWrap{height:100%;overflow-y:auto;padding-right:6px}
 #shopGrid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
 .item{background:linear-gradient(165deg,#141B3D,#0B1029);border:1px solid var(--line);
   border-radius:20px;padding:18px;text-align:center;position:relative;overflow:hidden}
 .item.av{border-color:rgba(168,85,247,.5);box-shadow:0 0 30px rgba(168,85,247,.14) inset}
 .item .ico{font-size:52px;line-height:1.1}
-.item .ico img{width:78px;height:78px;border-radius:50%;object-fit:cover;border:2px solid var(--violet)}
+.item .ico img{width:96px;height:96px;border-radius:50%;object-fit:cover;border:2px solid var(--violet)}
 .item .nm{font-size:21px;font-weight:900;margin-top:6px}
 .item .kind{font-size:11px;letter-spacing:2px;color:var(--violet);font-weight:700}
 .item .pr{font-family:"Chakra Petch",monospace;font-size:29px;font-weight:700;color:var(--gold);margin-top:6px}
@@ -267,18 +186,16 @@ main{height:calc(100vh - 67px);padding:10px}
 .item.out::after{content:"售完";position:absolute;top:12px;right:14px;font-size:18px;font-weight:900;color:var(--minus)}
 .empty{color:var(--dim);text-align:center;padding:70px 0;font-size:20px;grid-column:1/-1}
 
-/* ================= 轉盤 ================= */
+/* ===== 轉盤 ===== */
 #wheelWrap{position:fixed;inset:0;z-index:120;display:none;place-items:center;
   background:radial-gradient(circle,rgba(6,10,28,.80),rgba(0,0,0,.94));backdrop-filter:blur(5px)}
 #wheelWrap.on{display:grid;animation:fadein .35s}
-@keyframes fadein{from{opacity:0}to{opacity:1}}
 .wbox{text-align:center;animation:pop .55s cubic-bezier(.2,1.55,.4,1)}
-@keyframes pop{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
 .wtag{font-family:"Chakra Petch",monospace;letter-spacing:12px;color:var(--gold);font-size:17px}
 .wwho{font-size:clamp(26px,4.2vh,44px);font-weight:900;margin:4px 0 14px}
 .wwho b{background:linear-gradient(90deg,#FFC53D,#FF4D8D,#22D3EE);background-size:200%;
   -webkit-background-clip:text;background-clip:text;color:transparent;animation:flow 2.4s linear infinite}
-.wstage{position:relative;width:min(56vh,56vw);height:min(56vh,56vw);margin:0 auto}
+.wstage{position:relative;width:min(54vh,54vw);height:min(54vh,54vw);margin:0 auto}
 .wheel{position:absolute;inset:0;border-radius:50%;border:6px solid rgba(255,255,255,.14);
   box-shadow:0 0 50px rgba(168,85,247,.4),inset 0 0 40px rgba(0,0,0,.55);
   transition:transform 4.6s cubic-bezier(.12,.82,.16,1);cursor:pointer}
@@ -286,8 +203,8 @@ main{height:calc(100vh - 67px);padding:10px}
 .wlab span{margin-top:7%;font-size:clamp(13px,1.9vh,20px);font-weight:900;color:#0B0E22;
   text-shadow:0 1px 2px rgba(255,255,255,.45);max-width:6.5em;line-height:1.25;text-align:center}
 .wlab span i{display:block;font-size:1.5em;font-style:normal}
-.wptr{position:absolute;top:-16px;left:50%;transform:translateX(-50%);z-index:5;
-  width:0;height:0;border-left:19px solid transparent;border-right:19px solid transparent;
+.wptr{position:absolute;top:-16px;left:50%;transform:translateX(-50%);z-index:5;width:0;height:0;
+  border-left:19px solid transparent;border-right:19px solid transparent;
   border-top:34px solid var(--gold);filter:drop-shadow(0 3px 8px rgba(0,0,0,.7))}
 .whub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4;
   width:20%;height:20%;border-radius:50%;display:grid;place-items:center;cursor:pointer;
@@ -296,19 +213,17 @@ main{height:calc(100vh - 67px);padding:10px}
   box-shadow:0 0 26px rgba(255,197,61,.5);animation:hub 1.4s ease-in-out infinite}
 @keyframes hub{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.09)}}
 .whub.off{animation:none;cursor:default;opacity:.65}
-.wres{min-height:64px;margin-top:18px;font-size:clamp(20px,3.2vh,34px);font-weight:900;opacity:0;transition:.4s}
+.wres{min-height:60px;margin-top:16px;font-size:clamp(20px,3.2vh,34px);font-weight:900;opacity:0;transition:.4s}
 .wres.on{opacity:1}
 .wres b{color:var(--gold)}
-.wbtn{margin-top:6px;padding:14px 46px;border:0;border-radius:16px;font-size:20px;font-weight:900;
+.wbtn{margin-top:4px;padding:14px 46px;border:0;border-radius:16px;font-size:20px;font-weight:900;
   font-family:inherit;background:linear-gradient(135deg,#FFC53D,#FF8A3D);color:#241500;cursor:pointer;
   opacity:0;pointer-events:none;transition:.3s}
 .wbtn.on{opacity:1;pointer-events:auto}
 
-/* 低效能 */
-body.lowfx .halo::before,body.lowfx .pc,body.lowfx .scan,body.lowfx #stars i,body.lowfx .t1,
-body.lowfx .t4 .name,body.lowfx .ring,body.lowfx .holo,body.lowfx .sheen,body.lowfx .spark,
-body.lowfx .beams,body.lowfx .orbit,body.lowfx .embers,body.lowfx .avring{animation:none!important}
-body.lowfx .holo,body.lowfx .sheen,body.lowfx .beams,body.lowfx .pc{display:none!important}
+body.lowfx .halo::before,body.lowfx .pc,body.lowfx .scan,body.lowfx #stars i,
+body.lowfx .t1,body.lowfx .t4 .name,body.lowfx .ring{animation:none!important}
+body.lowfx .pc{display:none!important}
 body.lowfx .t4 .name{-webkit-text-fill-color:var(--ink);color:var(--ink)}
 body.lowfx .ring{background:linear-gradient(135deg,#FF4D8D,#22D3EE)}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important}}
@@ -354,9 +269,7 @@ body.lowfx .ring{background:linear-gradient(135deg,#FF4D8D,#22D3EE)}
   <div class="wtag">LEVEL UP</div>
   <div class="wwho"><span id="wName"></span> 升級到 <b id="wTier"></b></div>
   <div class="wstage">
-    <div class="wptr"></div>
-    <div class="wheel" id="wheel"></div>
-    <div class="whub" id="whub">轉</div>
+    <div class="wptr"></div><div class="wheel" id="wheel"></div><div class="whub" id="whub">轉</div>
   </div>
   <div class="wres" id="wRes"></div>
   <button class="wbtn" id="wTake">收下</button>
@@ -369,8 +282,7 @@ import { getFirestore, collection, doc, onSnapshot, updateDoc, addDoc, getDocs, 
   query, orderBy, limit, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* ===== 設定（原 config.js，已內嵌，不再需要外部檔案）===== */
-// ===================== 共用設定 =====================
+/* ===== 設定 ===== */
 const firebaseConfig = {
   apiKey: "AIzaSyDrDK9sr3U1239BzbU7xMCc5QddYvCC34s",
   authDomain: "school-e429d.firebaseapp.com",
@@ -380,77 +292,35 @@ const firebaseConfig = {
   appId: "1:881372767341:web:b3b66c431594b5c4a94b64",
   measurementId: "G-B1DENGMX27"
 };
-
-// 後台密碼
-const ADMIN_PIN = "072929";
-
-// 等級門檻（依累積分，只升不降）
 const TIERS = [
-  { key: 0, min: 0,   name: "見習", color: "#8A94A6" },
-  { key: 1, min: 50,  name: "金輝", color: "#FFC53D" },
-  { key: 2, min: 150, name: "紫耀", color: "#A855F7" },
-  { key: 3, min: 250, name: "星焰", color: "#22D3EE" },
-  { key: 4, min: 450, name: "傳說", color: "#FF4D8D" }
+  { key:0, min:0,   name:"見習", color:"#8A94A6" },
+  { key:1, min:50,  name:"金輝", color:"#FFC53D" },
+  { key:2, min:150, name:"紫耀", color:"#A855F7" },
+  { key:3, min:250, name:"星焰", color:"#22D3EE" },
+  { key:4, min:450, name:"傳說", color:"#FF4D8D" }
 ];
-
-function tierOf(total) {
-  let t = TIERS[0];
-  for (const x of TIERS) if ((total || 0) >= x.min) t = x;
-  return t;
-}
-function nextTier(total) {
-  for (const x of TIERS) if ((total || 0) < x.min) return x;
-  return null;
-}
-
-// 預設加減分理由（第一次開後台時會自動寫進 Firestore，之後在設定頁改）
-const DEFAULT_REASONS = {
-  add: [
-    { label: "舉手回答", points: 2 },
-    { label: "準時到班", points: 1 },
-    { label: "交作業",   points: 1 },
-    { label: "收拾整潔", points: 1 },
-    { label: "幫助同學", points: 2 },
-    { label: "特別表現", points: 3 }
-  ],
-  sub: [
-    { label: "干擾秩序", points: 2 },
-    { label: "遲到",     points: 1 },
-    { label: "沒交作業", points: 2 },
-    { label: "沒收拾",   points: 1 }
-  ]
-};
-
-// 轉盤預設獎品（weight = 扇形寬度 = 中獎機率；points > 0 會自動加進餘額）
+function tierOf(t){ let r = TIERS[0]; for (const x of TIERS) if ((t||0) >= x.min) r = x; return r; }
+function nextTier(t){ for (const x of TIERS) if ((t||0) < x.min) return x; return null; }
 const DEFAULT_WHEEL = [
-  { label: "乖乖一包",     emoji: "🍪", weight: 5, points: 0  },
-  { label: "養樂多",       emoji: "🥤", weight: 5, points: 0  },
-  { label: "加 10 點",     emoji: "💰", weight: 4, points: 10 },
-  { label: "免寫作業一次", emoji: "📝", weight: 2, points: 0  },
-  { label: "加 30 點",     emoji: "💎", weight: 2, points: 30 },
-  { label: "自選大零食",   emoji: "🎁", weight: 1, points: 0  }
+  { label:"乖乖一包", emoji:"🍪", weight:5, points:0 },
+  { label:"養樂多", emoji:"🥤", weight:5, points:0 },
+  { label:"加 10 點", emoji:"💰", weight:4, points:10 },
+  { label:"免寫作業一次", emoji:"📝", weight:2, points:0 },
+  { label:"加 30 點", emoji:"💎", weight:2, points:30 },
+  { label:"自選大零食", emoji:"🎁", weight:1, points:0 }
 ];
-
-// 頭像選單
-const AVATARS = Array.from("🦊🐼🐧🐯🦁🐸🐵🐨🐰🐱🐶🐹🐢🦉🐙🦄🐷🐔🦖🐳🐝🦋🐬🦕");
-
-// 判斷是不是圖片：完整網址、相對路徑、或常見圖檔副檔名都算
-function isImg(v) {
-  const s = String(v || "").trim();
+function isImg(v){
+  const s = String(v||"").trim();
   return /^https?:\/\//.test(s) || s.startsWith("/") || s.startsWith("./")
       || /\.(png|jpe?g|webp|gif|svg|avif)$/i.test(s);
 }
-
-// 共用：是圖就吐 img，否則當 emoji
-function avatarHTML(a, cls = "") {
+function avatarHTML(a){
   const v = String(a || "🙂").trim();
-  return isImg(v)
-    ? `<img class="av-img ${cls}" src="${v}" alt="" loading="lazy">`
-    : `<span class="av-emo ${cls}">${v}</span>`;
+  return isImg(v) ? `<img class="av-img" src="${v}" alt="" loading="lazy">`
+                  : `<span class="av-emo">${v}</span>`;
 }
-
 const esc = s => String(s ?? "").replace(/[<>&"]/g,
-  c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" }[c]));
+  c => ({ "<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;" }[c]));
 
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
@@ -460,22 +330,18 @@ const $ = id => document.getElementById(id);
 const sw = $("stars");
 for (let i = 0; i < 90; i++){
   const s = document.createElement("i");
-  s.style.left = Math.random()*100 + "%";
-  s.style.top  = Math.random()*100 + "%";
+  s.style.left = Math.random()*100 + "%"; s.style.top = Math.random()*100 + "%";
   s.style.animationDelay = (Math.random()*4) + "s";
   s.style.opacity = Math.random()*.8 + .2;
   sw.appendChild(s);
 }
 
-/* 分頁 */
 document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
   document.querySelectorAll(".tab").forEach(x => x.classList.remove("on"));
   document.querySelectorAll(".page").forEach(x => x.classList.remove("on"));
-  t.classList.add("on");
-  $("p-" + t.dataset.p).classList.add("on");
+  t.classList.add("on"); $("p-" + t.dataset.p).classList.add("on");
 });
 
-/* 開關 */
 let lowfx = localStorage.getItem("lowfx") === "1";
 let snd   = localStorage.getItem("snd") !== "0";
 function syncToggles(){
@@ -489,7 +355,6 @@ $("btnFx").onclick  = () => { lowfx = !lowfx; localStorage.setItem("lowfx", lowf
 $("btnSnd").onclick = () => { snd = !snd; localStorage.setItem("snd", snd?"1":"0"); syncToggles(); };
 syncToggles();
 
-/* 音效 */
 let ac = null;
 function tone(seq, type = "triangle", vol = .16){
   if (!snd) return;
@@ -512,38 +377,41 @@ const sfxLv   = () => tone([[523,0,.3],[659,.1,.3],[784,.2,.3],[1047,.3,.36],[13
 const sfxTick = () => tone([[1400,0,.03]], "square", .05);
 const sfxWin  = () => tone([[784,0,.25],[1047,.12,.25],[1319,.24,.3],[1568,.36,.55]]);
 
-/* ================= 學生榜（差異更新，動畫不會被重置） ================= */
+/* ===== 學生榜 ===== */
 const grid = $("grid");
 const nodes = new Map();
-const prev  = {};
-const byId  = {};
-let signature = "", firstPaint = true;
+const prev = {}, byId = {};
+const avatarItemByName = {};
+let signature = "", firstPaint = true, lastN = 0;
+
+function fitGrid(n){
+  const W = grid.clientWidth, H = grid.clientHeight, gap = 10;
+  if (!W || !H || !n) return;
+  let best = null;
+  for (let c = 1; c <= n; c++){
+    const r = Math.ceil(n / c);
+    const w = (W - gap*(c-1)) / c, h = (H - gap*(r-1)) / r;
+    if (w < 130 || h < 105) continue;
+    const score = Math.abs(w/h - 1.1) + (c*r - n) * 0.07;
+    if (!best || score < best.score) best = { score, c, r };
+  }
+  if (!best){ const c = Math.ceil(Math.sqrt(n)); best = { c, r: Math.ceil(n/c) }; }
+  grid.style.gridTemplateColumns = `repeat(${best.c},1fr)`;
+  grid.style.gridTemplateRows    = `repeat(${best.r},1fr)`;
+}
+addEventListener("resize", () => fitGrid(lastN));
 
 function shell(s){
-  const parts = Array.from({length:10}, () => {
-    const sz = (2 + Math.random()*4).toFixed(1);
-    return `<i style="left:${(Math.random()*94+3).toFixed(1)}%;width:${sz}px;height:${sz}px;`
-         + `animation-duration:${(2.2+Math.random()*2.6).toFixed(2)}s;`
-         + `animation-delay:${(Math.random()*3.4).toFixed(2)}s;`
-         + `opacity:${(.45+Math.random()*.55).toFixed(2)}"></i>`;
-  }).join("");
-  const sparks = Array.from({length:3}, () =>
-    `<i style="left:${(Math.random()*80+10).toFixed(0)}%;top:${(Math.random()*70+12).toFixed(0)}%;`
-    + `animation-delay:${(Math.random()*2.6).toFixed(2)}s"></i>`).join("");
+  const parts = Array.from({length:6}, (_,i) =>
+    `<i style="left:${8+i*15}%;animation-delay:${(i*0.5).toFixed(1)}s"></i>`).join("");
   const el = document.createElement("div");
   el.className = "card t0";
   el.dataset.id = s.id;
   el.innerHTML = `
-    <div class="beams"></div><div class="halo"></div><div class="weave"></div>
-    <div class="holo"></div><div class="embers"></div>
-    <div class="pc">${parts}</div><div class="spark">${sparks}</div>
-    <div class="sheen"></div><div class="scan"></div>
-    <div class="ring"></div><div class="brk"></div>
+    <div class="halo"></div><div class="pc">${parts}</div>
+    <div class="scan"></div><div class="ring"></div>
     <div class="body">
-      <div class="avwrap"><div class="avring"></div>
-        <div class="orbit"><i></i><i></i><i></i></div>
-        <div class="avslot">${avatarHTML(s.avatar)}</div>
-      </div>
+      <div class="avwrap"><div class="avslot">${avatarHTML(s.avatar)}</div></div>
       <div class="name"></div><div class="pts"></div>
       <div class="meta"></div><div class="goal"></div>
     </div>
@@ -552,87 +420,6 @@ function shell(s){
   el.addEventListener("click", () => openStudent(s.id));
   return el;
 }
-
-/* ---------- 學生詳細頁 ---------- */
-let logCache = [], logAt = 0;
-async function loadLogs(){
-  if (Date.now() - logAt < 20000 && logCache.length) return logCache;
-  try{
-    const snap = await getDocs(query(collection(db,"logs"), orderBy("at","desc"), limit(300)));
-    logCache = snap.docs.map(d => d.data());
-    logAt = Date.now();
-  }catch(e){ console.warn(e); }
-  return logCache;
-}
-
-function when(ts){
-  try{ const d = ts.toDate(); return `${d.getMonth()+1}/${d.getDate()}`; }catch(e){ return ""; }
-}
-
-async function openStudent(id){
-  const s = byId[id]; if (!s) return;
-  const t = tierOf(s.total || 0);
-  const box = $("sbox");
-  box.style.setProperty("--tc", t.color);
-
-  $("sAv").innerHTML = avatarHTML(s.avatar);
-  $("sNm").textContent = s.name;
-  $("sSub").innerHTML  = `<b>${t.name}</b> · 累積 ${s.total || 0} 分`;
-  $("sWal").textContent = s.wallet || 0;
-
-  // 擁有的頭像：欄位 + 目前這顆 + 從購買紀錄還原（owned 欄位是後來才加的，舊資料靠這裡補）
-  const logsAll = await loadLogs();
-  const mine = logsAll.filter(l => l.studentId === id);
-  const fromLogs = mine
-    .filter(l => l.kind === "buy")
-    .map(l => (String(l.reason || "").match(/兌換「(.+)」/) || [])[1])
-    .map(nm => avatarItemByName[nm])
-    .filter(Boolean);
-  const owned = Array.from(new Set([...(s.owned || []), ...fromLogs, s.avatar].filter(Boolean)));
-
-  // 補回來的順手寫進 Firestore，下次就不用再推算
-  const missing = owned.filter(a => !(s.owned || []).includes(a));
-  if (missing.length){
-    updateDoc(doc(db,"students",id), { owned: arrayUnion(...missing) }).catch(e => console.warn(e));
-  }
-  $("sOwned").innerHTML = owned.length <= 1 && !isImg(s.avatar)
-    ? `<div class="hnone">還沒有買過頭像，去商店換一個吧</div>`
-    : owned.map(a => {
-        const eq = a === s.avatar;
-        const inner = isImg(a) ? `<img src="${esc(a)}" alt="">` : `<div class="em">${a}</div>`;
-        return `<div class="avpick2 ${eq?"eq":""}" data-av="${esc(a)}">
-          ${eq ? `<div class="eqtag">使用中</div>` : ""}${inner}</div>`;
-      }).join("");
-
-  $("sOwned").querySelectorAll("[data-av]").forEach(el => el.onclick = async () => {
-    const av = el.dataset.av;
-    if (av === byId[id].avatar) return;
-    try{
-      await updateDoc(doc(db,"students",id), { avatar: av });
-      sfxUp();
-      setTimeout(() => openStudent(id), 350);
-    }catch(e){ console.error(e); }
-  });
-
-  $("sBuys").innerHTML = `<div class="hnone">載入中…</div>`;
-  $("sSpins").innerHTML = `<div class="hnone">載入中…</div>`;
-  $("stuModal").classList.add("on");
-
-  const logs = mine;
-  const row = l => `<div class="hrow">
-      <div class="hi">${l.kind === "spin" ? "🎡" : "🛒"}</div>
-      <div class="ht">${esc(String(l.reason || "").replace(/^轉盤（.*?）：/, ""))}</div>
-      ${l.delta ? `<div class="hd">${l.delta > 0 ? "+" : ""}${l.delta}</div>` : ""}
-      <div class="hw">${when(l.at)}</div>
-    </div>`;
-  const buys  = logs.filter(l => l.kind === "buy");
-  const spins = logs.filter(l => l.kind === "spin");
-  $("sBuys").innerHTML  = buys.length  ? buys.map(row).join("")  : `<div class="hnone">還沒買過東西</div>`;
-  $("sSpins").innerHTML = spins.length ? spins.map(row).join("") : `<div class="hnone">還沒轉過轉盤</div>`;
-}
-
-$("sClose").onclick = () => $("stuModal").classList.remove("on");
-$("stuModal").onclick = e => { if (e.target.id === "stuModal") $("stuModal").classList.remove("on"); };
 
 function paint(el, s){
   const total = s.total || 0, wallet = s.wallet || 0;
@@ -659,6 +446,7 @@ function popFloat(id, diff){
   f.className = "float";
   f.textContent = (diff > 0 ? "+" : "") + diff;
   f.style.color = diff > 0 ? "var(--plus)" : "var(--minus)";
+  f.style.transform = "translateX(-50%)";
   el.querySelector(".fx").appendChild(f);
   el.classList.add("hit");
   setTimeout(() => el.classList.remove("hit"), 320);
@@ -669,22 +457,6 @@ function popFloat(id, diff){
 function burst(id){
   const el = nodes.get(id); if (!el) return;
   el.classList.remove("lv"); void el.offsetWidth; el.classList.add("lv");
-  if (!lowfx){
-    const fx = el.querySelector(".fx");
-    const cols = ["#FFC53D","#FF4D8D","#22D3EE","#A855F7","#4ADE80","#fff"];
-    for (let i = 0; i < 16; i++){
-      const c = document.createElement("div");
-      c.className = "conf";
-      const a = Math.random()*Math.PI*2, d = 60 + Math.random()*110;
-      c.style.setProperty("--dx", (Math.cos(a)*d).toFixed(0) + "px");
-      c.style.setProperty("--dy", (Math.sin(a)*d + 40).toFixed(0) + "px");
-      c.style.setProperty("--rot", (Math.random()*900 - 450).toFixed(0) + "deg");
-      c.style.background = cols[i % cols.length];
-      c.style.animationDelay = (Math.random()*.12).toFixed(2) + "s";
-      fx.appendChild(c);
-      setTimeout(() => c.remove(), 1800);
-    }
-  }
   sfxLv();
   setTimeout(() => el.classList.remove("lv"), 1300);
 }
@@ -694,17 +466,15 @@ onSnapshot(collection(db, "students"), snap => {
   const list = snap.docs.map(d => ({ id: d.id, ...d.data() }))
     .sort((a,b) => String(a.name).localeCompare(String(b.name), "zh-Hant"));
   list.forEach(s => byId[s.id] = s);
-
   if (!list.length){
     grid.innerHTML = `<div class="empty">還沒有學生，去後台的「設定」新增</div>`;
     nodes.clear(); signature = ""; return;
   }
   const sig = list.map(s => s.id).join("|");
   if (sig !== signature){
-    grid.innerHTML = "";
-    nodes.clear();
+    grid.innerHTML = ""; nodes.clear();
     list.forEach(s => { const el = shell(s); grid.appendChild(el); nodes.set(s.id, el); });
-    signature = sig;
+    signature = sig; lastN = list.length; fitGrid(lastN);
   }
   list.forEach(s => {
     const el = nodes.get(s.id); if (!el) return;
@@ -720,33 +490,91 @@ onSnapshot(collection(db, "students"), snap => {
 }, err => { grid.innerHTML = `<div class="empty">讀取失敗：${esc(err.message)}</div>`; });
 }
 
-/* ================= 商店 ================= */
+/* ===== 學生詳細 ===== */
+let logCache = [], logAt = 0;
+async function loadLogs(){
+  if (Date.now() - logAt < 20000 && logCache.length) return logCache;
+  try{
+    const snap = await getDocs(query(collection(db,"logs"), orderBy("at","desc"), limit(300)));
+    logCache = snap.docs.map(d => d.data()); logAt = Date.now();
+  }catch(e){ console.warn(e); }
+  return logCache;
+}
+const when = ts => { try{ const d = ts.toDate(); return `${d.getMonth()+1}/${d.getDate()}`; }catch(e){ return ""; } };
+
+async function openStudent(id){
+  const s = byId[id]; if (!s) return;
+  const t = tierOf(s.total || 0);
+  $("sbox").style.setProperty("--tc", t.color);
+  $("sAv").innerHTML = avatarHTML(s.avatar);
+  $("sNm").textContent = s.name;
+  $("sSub").innerHTML = `<b>${t.name}</b> · 累積 ${s.total || 0} 分`;
+  $("sWal").textContent = s.wallet || 0;
+  $("sOwned").innerHTML = `<div class="hnone">載入中…</div>`;
+  $("sBuys").innerHTML = ""; $("sSpins").innerHTML = "";
+  $("stuModal").classList.add("on");
+
+  const mine = (await loadLogs()).filter(l => l.studentId === id);
+
+  // owned 是後來才加的欄位，舊資料從購買紀錄反推回來
+  const fromLogs = mine.filter(l => l.kind === "buy")
+    .map(l => (String(l.reason || "").match(/兌換「(.+)」/) || [])[1])
+    .map(nm => avatarItemByName[nm]).filter(Boolean);
+  const owned = Array.from(new Set([...(s.owned || []), ...fromLogs, s.avatar].filter(Boolean)));
+  const missing = owned.filter(a => !(s.owned || []).includes(a));
+  if (missing.length)
+    updateDoc(doc(db,"students",id), { owned: arrayUnion(...missing) }).catch(e => console.warn(e));
+
+  $("sOwned").innerHTML = (owned.length <= 1 && !isImg(s.avatar))
+    ? `<div class="hnone">還沒有買過頭像，去商店換一個吧</div>`
+    : owned.map(a => {
+        const eq = a === s.avatar;
+        const inner = isImg(a) ? `<img src="${esc(a)}" alt="">` : `<div class="em">${a}</div>`;
+        return `<div class="avpick2 ${eq?"eq":""}" data-av="${esc(a)}">
+          ${eq ? `<div class="eqtag">使用中</div>` : ""}${inner}</div>`;
+      }).join("");
+  $("sOwned").querySelectorAll("[data-av]").forEach(el => el.onclick = async () => {
+    const av = el.dataset.av;
+    if (av === byId[id].avatar) return;
+    try{ await updateDoc(doc(db,"students",id), { avatar: av }); sfxUp();
+         setTimeout(() => openStudent(id), 350); }catch(e){ console.error(e); }
+  });
+
+  const row = l => `<div class="hrow">
+      <div class="hi">${l.kind === "spin" ? "🎡" : "🛒"}</div>
+      <div class="ht">${esc(String(l.reason || "").replace(/^轉盤（.*?）：/, ""))}</div>
+      ${l.delta ? `<div class="hd">${l.delta > 0 ? "+" : ""}${l.delta}</div>` : ""}
+      <div class="hw">${when(l.at)}</div></div>`;
+  const buys  = mine.filter(l => l.kind === "buy");
+  const spins = mine.filter(l => l.kind === "spin");
+  $("sBuys").innerHTML  = buys.length  ? buys.map(row).join("")  : `<div class="hnone">還沒買過東西</div>`;
+  $("sSpins").innerHTML = spins.length ? spins.map(row).join("") : `<div class="hnone">還沒轉過轉盤</div>`;
+}
+$("sClose").onclick = () => $("stuModal").classList.remove("on");
+$("stuModal").onclick = e => { if (e.target.id === "stuModal") $("stuModal").classList.remove("on"); };
+
+/* ===== 商店 ===== */
 const shopGrid = $("shopGrid");
-const avatarItemByName = {};   // 商品名稱 → 圖片路徑，用來還原買過的頭像
 function startShop(){
 onSnapshot(collection(db, "items"), snap => {
   const list = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    .filter(i => i.active !== false)
-    .sort((a,b) => (a.price||0) - (b.price||0));
-  if (!list.length){ shopGrid.innerHTML = `<div class="empty">商店還沒上架東西</div>`; return; }
+    .filter(i => i.active !== false).sort((a,b) => (a.price||0) - (b.price||0));
   list.forEach(i => { if (i.type === "avatar" && i.name) avatarItemByName[i.name] = i.emoji; });
+  if (!list.length){ shopGrid.innerHTML = `<div class="empty">商店還沒上架東西</div>`; return; }
   shopGrid.innerHTML = list.map(i => {
     const isAv = i.type === "avatar";
     const out  = !isAv && (i.stock || 0) <= 0;
-    const ico  = isImg(i.emoji)
-      ? `<img src="${esc(i.emoji)}" alt="" loading="lazy">` : (i.emoji || "🎁");
+    const ico  = isImg(i.emoji) ? `<img src="${esc(i.emoji)}" alt="" loading="lazy">` : (i.emoji || "🎁");
     return `<div class="item ${isAv?"av":""} ${out?"out":""}">
-      <div class="ico">${ico}</div>
-      <div class="nm">${esc(i.name)}</div>
+      <div class="ico">${ico}</div><div class="nm">${esc(i.name)}</div>
       ${isAv ? `<div class="kind">頭像</div>` : ""}
       <div class="pr">${i.price || 0} 點</div>
-      <div class="st">${isAv ? "換了就永久是你的" : `剩下 ${i.stock || 0} 個`}</div>
-    </div>`;
+      <div class="st">${isAv ? "換了就永久是你的" : `剩下 ${i.stock || 0} 個`}</div></div>`;
   }).join("");
 }, err => { shopGrid.innerHTML = `<div class="empty">讀取失敗：${esc(err.message)}</div>`; });
 }
 
-/* ================= 轉盤 ================= */
+/* ===== 轉盤 ===== */
 const SEG_COLORS = ["#FFC53D","#A855F7","#22D3EE","#FF4D8D","#4ADE80","#FB923C","#60A5FA","#F472B6"];
 let prizes = DEFAULT_WHEEL.slice();
 let queue = [], current = null, spinning = false, landed = null;
@@ -759,23 +587,19 @@ function buildWheel(){
     `<div class="wlab" style="transform:rotate(${(i*per + per/2).toFixed(3)}deg)">
        <span><i>${p.emoji || "🎁"}</i>${esc(p.label)}</span></div>`).join("");
   const w = $("wheel");
-  w.style.transition = "none";
-  w.style.transform  = "rotate(0deg)";
+  w.style.transition = "none"; w.style.transform = "rotate(0deg)";
   w.style.background = `conic-gradient(from 0deg,${stops})`;
-  w.innerHTML = labs;
-  void w.offsetWidth;
+  w.innerHTML = labs; void w.offsetWidth;
 }
-
 function pickIndex(){
-  const total = prizes.reduce((a,p) => a + (Number(p.weight) > 0 ? Number(p.weight) : 1), 0);
-  let r = Math.random() * total;
+  const tot = prizes.reduce((a,p) => a + (Number(p.weight) > 0 ? Number(p.weight) : 1), 0);
+  let r = Math.random() * tot;
   for (let i = 0; i < prizes.length; i++){
     r -= (Number(prizes[i].weight) > 0 ? Number(prizes[i].weight) : 1);
     if (r <= 0) return i;
   }
   return prizes.length - 1;
 }
-
 function showSpin(sp){
   current = sp; spinning = false; landed = null;
   $("wName").textContent = sp.studentName;
@@ -783,22 +607,19 @@ function showSpin(sp){
   $("wRes").classList.remove("on"); $("wRes").innerHTML = "";
   $("wTake").classList.remove("on");
   $("whub").classList.remove("off"); $("whub").textContent = "轉";
-  buildWheel();
-  $("wheelWrap").classList.add("on");
+  buildWheel(); $("wheelWrap").classList.add("on");
 }
-
 function doSpin(){
   if (spinning || !current) return;
   spinning = true;
   $("whub").classList.add("off"); $("whub").textContent = "…";
-  const idx = pickIndex();
-  const n = prizes.length, per = 360 / n;
+  const idx = pickIndex(), n = prizes.length, per = 360 / n;
   const centre = idx * per + per / 2;
   const jitter = (Math.random() - .5) * per * .6;
   const target = 360 * 6 + (360 - centre - jitter);
   const w = $("wheel");
   w.style.transition = "transform 4.6s cubic-bezier(.12,.82,.16,1)";
-  w.style.transform  = `rotate(${target.toFixed(2)}deg)`;
+  w.style.transform = `rotate(${target.toFixed(2)}deg)`;
   let ticks = 0;
   const iv = setInterval(() => { sfxTick(); if (++ticks > 26) clearInterval(iv); }, 150);
   landed = prizes[idx];
@@ -806,9 +627,7 @@ function doSpin(){
     clearInterval(iv);
     const bonus = Number(landed.points) > 0 ? `　<b>+${landed.points} 點</b>` : "";
     $("wRes").innerHTML = `${landed.emoji || "🎁"} 抽中 <b>${esc(landed.label)}</b>${bonus}`;
-    $("wRes").classList.add("on");
-    $("wTake").classList.add("on");
-    sfxWin();
+    $("wRes").classList.add("on"); $("wTake").classList.add("on"); sfxWin();
   }, 4700);
 }
 $("wheel").onclick = doSpin;
@@ -820,42 +639,33 @@ $("wTake").onclick = async () => {
   $("wheelWrap").classList.remove("on");
   current = null; landed = null; spinning = false;
   try{
-    await updateDoc(doc(db, "spins", sp.id), {
-      status: "done", prize: pz.label, prizePoints: Number(pz.points) || 0, doneAt: serverTimestamp()
-    });
+    await updateDoc(doc(db,"spins",sp.id), {
+      status:"done", prize:pz.label, prizePoints:Number(pz.points)||0, doneAt:serverTimestamp() });
     const pts = Number(pz.points) || 0;
     if (pts > 0){
       const s = byId[sp.studentId];
-      if (s) await updateDoc(doc(db, "students", sp.studentId), { wallet: (s.wallet || 0) + pts });
+      if (s) await updateDoc(doc(db,"students",sp.studentId), { wallet: (s.wallet||0) + pts });
     }
-    await addDoc(collection(db, "logs"), {
-      studentId: sp.studentId, studentName: sp.studentName, delta: pts,
-      reason: `轉盤（${sp.tierName}）：${pz.label}`, kind: "spin", at: serverTimestamp()
-    });
+    await addDoc(collection(db,"logs"), {
+      studentId:sp.studentId, studentName:sp.studentName, delta:pts,
+      reason:`轉盤（${sp.tierName}）：${pz.label}`, kind:"spin", at:serverTimestamp() });
   }catch(e){ console.error(e); }
   logAt = 0;
-  setTimeout(next, 600);
+  setTimeout(() => { if (!current && queue.length) showSpin(queue[0]); }, 600);
 };
 
-function next(){
-  if (current || !queue.length) return;
-  showSpin(queue[0]);
-}
-
 function startSpins(){
-  onSnapshot(doc(db, "config", "wheel"), d => {
+  onSnapshot(doc(db,"config","wheel"), d => {
     const v = d.exists() ? d.data().prizes : null;
     if (Array.isArray(v) && v.length) prizes = v;
     if (current && !spinning) buildWheel();
   }, e => console.warn(e));
-
-  onSnapshot(query(collection(db, "spins"), orderBy("at", "asc"), limit(20)), snap => {
-    queue = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(s => s.status === "pending");
-    next();
+  onSnapshot(query(collection(db,"spins"), orderBy("at","asc"), limit(20)), snap => {
+    queue = snap.docs.map(d => ({ id:d.id, ...d.data() })).filter(s => s.status === "pending");
+    if (!current && queue.length) showSpin(queue[0]);
   }, e => console.warn(e));
 }
 
-/* ================= 啟動 ================= */
 signInAnonymously(getAuth(app))
   .then(() => { startBoard(); startShop(); startSpins(); })
   .catch(e => {
